@@ -1,0 +1,36 @@
+<header class="header">
+    <div class="container">
+        <!-- Header Top Row: Logo, Search, Auth -->
+        <div class="header-top">
+            <a href="/" class="logo">
+                <img src="/images/logo.png" alt="CARON" style="height: 40px;">
+            </a>
+            
+            <div class="search-bar">
+                <input type="text" placeholder="차량을 검색하세요.">
+                <button class="btn-search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </button>
+            </div>
+
+            <div class="auth-links">
+                <a href="https://instagram.com" target="_blank" class="instagram-link" title="KS 오토플랜 인스타그램">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-instagram"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Header Bottom Row: Navigation -->
+        <div class="header-bottom">
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="/" class="nav-link <%= currentPath === '/' ? 'active' : '' %>">홈</a></li>
+                    <li><a href="/about" class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">회사소개</a></li>
+                    <li><a href="/succession" class="nav-link <%= currentPath === '/succession' ? 'active' : '' %>">리스/렌트 승계</a></li>
+                    <li><a href="/search" class="nav-link <%= currentPath === '/search' ? 'active' : '' %>">차량검색</a></li>
+                </ul>
+            </nav>
+            
+        </div>
+    </div>
+</header>
