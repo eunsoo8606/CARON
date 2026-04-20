@@ -33,30 +33,24 @@
             img: 'https://images.unsplash.com/photo-1606148332571-0f666b607ce1?q=80&w=2070' , tag: '할인' }, {
             name: '테슬라 Model Y' , price: '월 72만원~' ,
             img: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2070' , tag: '전기차' }, {
-            name: '현대 싼타페' , price: '월 48만원~' , img: '/images/ssantafe.png' , tag: '가성비' } ]; const chunks=[]; for (let
-            i=0; i < vehicles.length; i +=3) { chunks.push(vehicles.slice(i, i + 3)); } %>
-
+            name: '현대 싼타페' , price: '월 48만원~' , img: '/images/ssantafe.png' , tag: '가성비' } ]; %>
             <div class="swiper vehicle-swiper">
                 <div class="swiper-wrapper">
-                    <% chunks.forEach(row=> { %>
-                        <div class="swiper-slide vehicle-row">
-                            <% row.forEach(car=> { %>
-                                <div class="vehicle-card">
-                                    <div class="card-img" style="background-image: url('<%= car.img %>')">
-                                        <span class="badge">
-                                            <%= car.tag %>
-                                        </span>
-                                    </div>
-                                    <div class="card-body">
-                                        <h4 class="car-name">
-                                            <%= car.name %>
-                                        </h4>
-                                        <p class="car-price">
-                                            <%= car.price %>
-                                        </p>
-                                    </div>
-                                </div>
-                                <% }); %>
+                    <% vehicles.forEach(car=> { %>
+                        <div class="swiper-slide vehicle-card">
+                            <div class="card-img" style="background-image: url('<%= car.img %>')">
+                                <span class="badge">
+                                    <%= car.tag %>
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h4 class="car-name">
+                                    <%= car.name %>
+                                </h4>
+                                <p class="car-price">
+                                    <%= car.price %>
+                                </p>
+                            </div>
                         </div>
                         <% }); %>
                 </div>

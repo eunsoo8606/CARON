@@ -357,13 +357,13 @@
                                     <input type="checkbox" required checked>
                                     <span>동의</span>
                                 </label>
-                                <button type="submit" class="btn-sticky-submit">
-                                    <span>신청</span>
+                                <button type="button" class="btn-sticky-submit btn-quick-inquiry">
+                                    <span>상담 신청하기</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
                                         stroke-linejoin="round" class="lucide lucide-chevron-right">
                                         <path d="m9 18 6-6-6-6" />
-                                    </svg>
+                                     </svg>
                                 </button>
                             </div>
                         </form>
@@ -929,39 +929,6 @@
                     box-shadow: 0 15px 30px rgba(222, 31, 127, 0.4);
                 }
 
-                @media (max-width: 1100px) {
-                    .sticky-title {
-                        display: none;
-                    }
-
-                    .sticky-info {
-                        display: none;
-                    }
-                }
-
-                @media (max-width: 768px) {
-                    .sticky-inquiry-bar {
-                        bottom: 10px;
-                        padding: 10px 0;
-                    }
-
-                    .car-input {
-                        display: none;
-                    }
-
-                    .sticky-wrapper {
-                        gap: 15px;
-                    }
-
-                    .btn-sticky-submit span {
-                        display: none;
-                    }
-
-                    .btn-sticky-submit {
-                        padding: 0 15px;
-                    }
-                }
-
                 .succession-process {
                     padding: 100px 0;
                     background-color: #f8faff;
@@ -1087,10 +1054,79 @@
                     word-break: keep-all;
                 }
 
-                @media (max-width: 992px) {
-                    .process-container {
-                        grid-template-columns: 1fr;
+                @media (max-width: 1024px) {
+                    .succession-page { padding-top: 120px; }
+                    .intro-card { min-height: auto; }
+                    .intro-content { padding: 50px 30px; }
+                    .intro-title { font-size: 28px; }
+                    .advantages-grid { grid-template-columns: 1fr; gap: 30px; }
+                    .process-container { grid-template-columns: 1fr !important; gap: 30px; }
+                }
+
+                @media (max-width: 768px) {
+                    .succession-page { padding-top: 100px; }
+                    .page-title { font-size: 28px; margin-bottom: 40px; }
+                    .hero-section { padding: 40px 0; }
+                    
+                    .intro-card { border-radius: 24px; }
+                    .intro-content { padding: 40px 20px; text-align: left; }
+                    .intro-title { font-size: 24px; margin-bottom: 20px; }
+                    .intro-title::after { margin: 15px 0 0; }
+                    .intro-desc { font-size: 16px; }
+                    .intro-desc-sub { font-size: 14px; padding-left: 15px; }
+                    
+                    .intro-image { height: 250px; padding: 0 20px 20px; }
+                    .image-wrapper { height: 100%; border-radius: 20px; }
+                    
+                    .section-title-main { font-size: 26px; }
+                    .section-subtitle { font-size: 15px; }
+                    
+                    .advantage-card { padding-top: 15px; }
+                    .card-inner { padding: 40px 20px 20px; border-radius: 20px; }
+                    .benefit-icon { width: 44px; height: 44px; border-radius: 12px; }
+                    .benefit-text h4 { font-size: 18px; }
+                    .benefit-text p { font-size: 14px; }
+
+                    /* Sticky Bar Mobile (Redesign) */
+                    .sticky-inquiry-bar {
+                        bottom: 0 !important;
+                        width: 100%;
+                        border-radius: 20px 20px 0 0;
+                        padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+                        left: 0;
+                        transform: none !important;
                     }
+                    .sticky-wrapper { gap: 15px; }
+                    .sticky-info { display: flex; flex-direction: column; }
+                    .sticky-tag { font-size: 9px; }
+                    .sticky-title { display: block; font-size: 15px; font-weight: 700; white-space: nowrap; }
+                    .sticky-form { flex: 1; justify-content: flex-end; }
+                    .sticky-inputs, .sticky-options .sticky-check { display: none; }
+                    .btn-sticky-submit { 
+                        flex: 1;
+                        height: 52px;
+                        padding: 0 25px;
+                        font-size: 16px;
+                        border-radius: 15px;
+                    }
+                    .btn-sticky-submit span { display: block; }
+                    
+                    .process-path { padding: 30px 20px; border-radius: 20px; width: 100% !important; }
+                    .path-header { margin-bottom: 25px; }
+                    .path-header h4 { font-size: 18px; }
+                    .step-info h5 { font-size: 16px; }
+                    .step-info p { font-size: 13px; }
+
+                    .why-grid { gap: 15px; margin-top: 30px; }
+                    .why-text p { font-size: 15px; }
+                }
+
+                @media (max-width: 480px) {
+                    .page-title { font-size: 24px; }
+                    .intro-title { font-size: 22px; }
+                    .section-title-main { font-size: 22px; }
+                    .sticky-title { font-size: 14px; }
+                    .btn-sticky-submit { max-width: 120px; }
                 }
             </style>
 
@@ -1164,24 +1200,27 @@
                         delay: 0.2
                     });
 
-                    // Sticky Bar Footer Avoidance
-                    const stickyBar = document.querySelector('.sticky-inquiry-bar');
-                    const footer = document.querySelector('footer');
-                    
-                    if (stickyBar && footer) {
-                        ScrollTrigger.create({
-                            trigger: footer,
-                            start: "top bottom", // When top of footer hits bottom of viewport
-                            onUpdate: (self) => {
-                                // Calculate how much of the footer is visible
-                                const footerVisibleHeight = Math.max(0, window.innerHeight - footer.getBoundingClientRect().top);
-                                if (footerVisibleHeight > 0) {
-                                    gsap.set(stickyBar, { y: -footerVisibleHeight + 10 });
-                                } else {
-                                    gsap.set(stickyBar, { y: 0 });
-                                }
+                    // Sticky Bar Footer Avoidance (PC Only)
+                    ScrollTrigger.matchMedia({
+                        "(min-width: 769px)": function() {
+                            const stickyBar = document.querySelector('.sticky-inquiry-bar');
+                            const footer = document.querySelector('footer');
+                            
+                            if (stickyBar && footer) {
+                                ScrollTrigger.create({
+                                    trigger: footer,
+                                    start: "top bottom",
+                                    onUpdate: (self) => {
+                                        const footerVisibleHeight = Math.max(0, window.innerHeight - footer.getBoundingClientRect().top);
+                                        if (footerVisibleHeight > 0) {
+                                            gsap.set(stickyBar, { y: -footerVisibleHeight + 10 });
+                                        } else {
+                                            gsap.set(stickyBar, { y: 0 });
+                                        }
+                                    }
+                                });
                             }
-                        });
-                    }
+                        }
+                    });
                 });
             </script>

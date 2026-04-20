@@ -53,7 +53,7 @@ app.get('/succession', (req, res) => {
 
 // Vehicle Search
 app.get('/search', (req, res) => {
-    res.render('sub_template', { 
+    res.render('search', { 
         title: '차량검색'
     });
 });

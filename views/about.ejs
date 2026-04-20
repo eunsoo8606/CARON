@@ -674,24 +674,54 @@
         color: #666;
     }
 
-    @media (max-width: 992px) {
-        .services-grid { grid-template-columns: repeat(2, 1fr); }
-        .flow-line { left: 30px; }
-        .process-node, .process-node:nth-child(odd) {
-            justify-content: flex-start;
-            padding-left: 80px;
-            padding-right: 0;
-        }
-        .node-num { left: 30px; }
-        .node-content, .process-node:nth-child(odd) .node-content {
-            width: 100%;
-            margin: 0;
-            text-align: left;
-        }
+    @media (max-width: 1024px) {
+        .about-hero { height: 60vh; min-height: 500px; }
+        .hero-title { font-size: 42px; }
+        .story-grid { grid-template-columns: 1fr; gap: 50px; }
+        .experience-tag { padding: 25px; bottom: -20px; right: 20px; }
+        .experience-tag strong { font-size: 36px; }
+        .main-title { font-size: 34px; }
+        .values-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
-    @media (max-width: 576px) {
+    @media (max-width: 768px) {
+        .section-header { margin-bottom: 50px; }
+        .about-hero { height: 50vh; padding-top: 80px; }
+        .hero-title { font-size: 32px; }
+        .hero-desc { font-size: 16px; }
+        
+        .brand-story, .core-values, .about-services, .about-process { padding: 80px 0; }
+        
+        .values-grid { grid-template-columns: 1fr; }
+        .value-card { padding: 40px 25px; }
+        
         .services-grid { grid-template-columns: 1fr; }
+        .service-item { height: 350px; }
+        
+        .flow-line { left: 20px; }
+        .process-node, .process-node:nth-child(odd) { 
+            padding-left: 60px !important; 
+            padding-right: 0 !important;
+            margin-bottom: 40px; 
+            width: 100% !important;
+            display: block !important;
+        }
+        .node-num { left: 20px; width: 44px; height: 44px; font-size: 15px; transform: translateX(0); }
+        .node-content, .process-node:nth-child(odd) .node-content { 
+            width: 100% !important;
+            padding: 25px; 
+            margin: 0 !important;
+            text-align: left !important;
+        }
+        .node-content h5 { font-size: 17px; }
+    }
+
+    @media (max-width: 480px) {
+        .hero-title { font-size: 28px; }
+        .main-title { font-size: 28px; }
+        .story-text .desc { font-size: 16px; }
+        .experience-tag { padding: 20px; right: 10px; }
+        .experience-tag strong { font-size: 28px; }
     }
 </style>
 

@@ -17,17 +17,27 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
-    // 2. Vehicle Swiper (Vertical Row, 1 row visible, loop, autoplay)
+    // 2. Vehicle Swiper (Horizontal, Responsive slidesPerView)
     const vehicleSwiper = new Swiper('.vehicle-swiper', {
-        direction: 'vertical',
-        slidesPerView: 1,
-        spaceBetween: 30,
+        slidesPerView: 1.2,
+        centeredSlides: true,
+        spaceBetween: 15,
         loop: true,
         autoplay: {
             delay: 4000,
             disableOnInteraction: false,
         },
         speed: 800,
+        breakpoints: {
+            768: {
+                slidesPerView: 2.2,
+                spaceBetween: 30
+            },
+            1024: {
+                slidesPerView: 3,
+                spaceBetween: 30
+            }
+        }
     });
 
     // 3. GSAP Scroll Animations
@@ -163,7 +173,76 @@ document.addEventListener('DOMContentLoaded', () => {
         gsap.set('.planner-card', { opacity: 1, y: 0 });
     }
 
-    // Comprehensive refresh logic
+    // 6. Mobile Menu Logic
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const mobileNav = document.getElementById('mobileNav');
+
+    if (mobileMenuBtn && mobileNav) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileNav.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scroll
+        });
+    }
+
+    if (closeMenuBtn && mobileNav) {
+        closeMenuBtn.addEventListener('click', () => {
+            mobileNav.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scroll
+        });
+    }
+
+    // Close on overlay click
+    mobileNav.addEventListener('click', (e) => {
+        if (e.target === mobileNav) {
+            mobileNav.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+
+    // 8. Quick Inquiry Modal Action
+    const quickInquiryBtns = document.querySelectorAll('.btn-quick-inquiry');
+    const inquiryModal = document.getElementById('inquiryModal');
+    const closeInquiryModal = document.getElementById('closeInquiryModal');
+    const inquiryModalOverlay = document.querySelector('.modal-overlay');
+
+    if (quickInquiryBtns.length > 0 && inquiryModal) {
+        quickInquiryBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault(); // 기본 동작 방지
+                inquiryModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+    }
+
+    if (closeInquiryModal && inquiryModal) {
+        closeInquiryModal.addEventListener('click', () => {
+            inquiryModal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    }
+
+    if (inquiryModal) {
+        inquiryModal.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                inquiryModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    }
+
+    // Close modal on overlay click
+    if (inquiryModal) {
+        inquiryModal.addEventListener('click', (e) => {
+            if (e.target === inquiryModal) {
+                inquiryModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    }
+
+    // 9. Refresh Logic
     window.addEventListener('load', () => {
         ScrollTrigger.refresh();
     });
