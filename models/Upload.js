@@ -6,7 +6,6 @@ const Upload = sequelize.define('Upload', {
     original_name: { type: DataTypes.STRING(255), allowNull: false },
     saved_name: { type: DataTypes.STRING(255), allowNull: false },
     file_path: { type: DataTypes.STRING(512), allowNull: true },
-    image_data: { type: DataTypes.TEXT('long') }, // Vercel 환경용 Base64 데이터 저장
     file_size: { type: DataTypes.INTEGER, allowNull: false },
     mime_type: { type: DataTypes.STRING(100) },
     ref_type: { type: DataTypes.STRING(50) },

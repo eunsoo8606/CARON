@@ -332,15 +332,8 @@ app.get('/api/image/:id', async (req, res) => {
             return res.redirect(uploadItem.file_path);
         }
 
-        // Fallback for old Base64 images
-        if (!uploadItem.image_data) return res.status(404).send('Image data not found');
-        
-        const imgBuffer = Buffer.from(uploadItem.image_data, 'base64');
-        res.writeHead(200, {
-            'Content-Type': uploadItem.mime_type,
-            'Content-Length': imgBuffer.length
-        });
-        res.end(imgBuffer);
+        // Fallback: If no Blob URL, show placeholder or error
+        return res.status(404).send('Image data not found');
     } catch (err) {
         console.error('Image Serving Error:', err);
         res.status(500).send('Error serving image');
