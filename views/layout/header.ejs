@@ -7,10 +7,12 @@
             </a>
             
             <div class="search-bar">
-                <input type="text" placeholder="차량을 검색하세요.">
-                <button class="btn-search">
+                <input type="text" id="topSearchInput" placeholder="차량을 검색하세요." autocomplete="off">
+                <button class="btn-search" id="topSearchBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </button>
+                <!-- 실시간 추천 목록 레이어 -->
+                <div class="search-suggestions" id="searchSuggestions"></div>
             </div>
 
             <div class="auth-links">
@@ -31,10 +33,10 @@
 
             <nav class="nav desktop-only">
                 <ul class="nav-list">
-                    <li><a href="/" class="nav-link <%= currentPath === '/' ? 'active' : '' %>">홈</a></li>
-                    <li><a href="/about" class="nav-link <%= currentPath === '/about' ? 'active' : '' %>">회사소개</a></li>
-                    <li><a href="/succession" class="nav-link <%= currentPath === '/succession' ? 'active' : '' %>">리스/렌트 승계</a></li>
-                    <li><a href="/search" class="nav-link <%= currentPath === '/search' ? 'active' : '' %>">차량검색</a></li>
+                    <li><a href="/" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/' ? 'active' : '' %>">홈</a></li>
+                    <li><a href="/about" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/about' ? 'active' : '' %>">회사소개</a></li>
+                    <li><a href="/succession" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/succession' ? 'active' : '' %>">리스/렌트 승계</a></li>
+                    <li><a href="/search" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/search' ? 'active' : '' %>">차량검색</a></li>
                 </ul>
             </nav>
 
@@ -58,11 +60,116 @@
                 <button class="close-btn" id="closeMenuBtn">&times;</button>
             </div>
             <ul class="mobile-nav-list">
-                <li><a href="/" class="mobile-nav-link <%= currentPath === '/' ? 'active' : '' %>">홈</a></li>
-                <li><a href="/about" class="mobile-nav-link <%= currentPath === '/about' ? 'active' : '' %>">회사소개</a></li>
-                <li><a href="/succession" class="mobile-nav-link <%= currentPath === '/succession' ? 'active' : '' %>">리스/렌트 승계</a></li>
-                <li><a href="/search" class="mobile-nav-link <%= currentPath === '/search' ? 'active' : '' %>">차량검색</a></li>
+                <li><a href="/" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/' ? 'active' : '' %>">홈</a></li>
+                <li><a href="/about" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/about' ? 'active' : '' %>">회사소개</a></li>
+                <li><a href="/succession" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/succession' ? 'active' : '' %>">리스/렌트 승계</a></li>
+                <li><a href="/search" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/search' ? 'active' : '' %>">차량검색</a></li>
             </ul>
         </div>
     </div>
 </header>
+
+<style>
+    .search-bar { position: relative; z-index: 1001; }
+    .search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white !important;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        margin-top: 8px;
+        display: none;
+        z-index: 9999 !important;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+    .suggestion-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: 0.2s;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:hover { background: #f1f3f9; }
+    .suggestion-item .brand { 
+        font-size: 11px; 
+        font-weight: 700; 
+        color: #888; 
+        background: #eee; 
+        padding: 2px 6px; 
+        border-radius: 4px;
+    }
+    .suggestion-item .name { font-size: 14px; font-weight: 600; color: #333; }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const topSearchInput = document.getElementById('topSearchInput');
+        const topSearchBtn = document.getElementById('topSearchBtn');
+        const suggestionsBox = document.getElementById('searchSuggestions');
+        let debounceTimer;
+
+        const handleSearch = (keyword) => {
+            if (!keyword) return;
+            console.log('Searching for:', keyword);
+            window.location.href = `/search?q=${encodeURIComponent(keyword)}`;
+        };
+
+        topSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            console.log('Current query:', query);
+            
+            clearTimeout(debounceTimer);
+            if (!query) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            debounceTimer = setTimeout(async () => {
+                try {
+                    console.log('Fetching suggestions for:', query);
+                    const response = await fetch(`/api/cars/suggest?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    console.log('Suggestions received:', data);
+                    
+                    if (data && data.length > 0) {
+                        suggestionsBox.innerHTML = data.map(car => `
+                            <div class="suggestion-item" onclick="location.href='/search?q=${encodeURIComponent(car.name_ko)}'">
+                                <span class="brand">${car.brand}</span>
+                                <span class="name">${car.name_ko}</span>
+                            </div>
+                        `).join('');
+                        suggestionsBox.style.display = 'block';
+                    } else {
+                        suggestionsBox.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                }
+            }, 200);
+        });
+
+        topSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch(topSearchInput.value.trim());
+            }
+        });
+
+        // 엔터 버튼 클릭 시 검색
+        topSearchBtn.addEventListener('click', () => {
+            handleSearch(topSearchInput.value.trim());
+        });
+
+        // 외부 클릭 시 닫기
+        document.addEventListener('click', (e) => {
+            if (!topSearchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+    });
+</script>

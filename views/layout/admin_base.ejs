@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 콘솔 - CARON</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <script>
+        // 관리자 공통 삭제 함수
+        window.handleCarDelete = function(btn, id) {
+            if (!confirm('정말로 이 차량을 삭제하시겠습니까?')) return;
+            
+            fetch(`/console/cars/${id}/delete`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => {
+                if(res.ok) {
+                    alert('삭제되었습니다.');
+                    location.reload();
+                } else {
+                    alert('삭제 실패');
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('오류가 발생했습니다.');
+            });
+        };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="/images/logo.png" alt="CARON" style="filter: brightness(0) invert(1);">
+        </div>
+        
+        <nav class="sidebar-menu">
+            <div class="menu-category">MAIN</div>
+            <a href="/console/dashboard" class="menu-item <%= currentPath === '/console/dashboard' ? 'active' : '' %>">
+                <i class="fas fa-chart-line"></i> 대시보드
+            </a>
+
+            <div class="menu-category">차량</div>
+            <a href="/console/cars" class="menu-item <%= currentPath === '/console/cars' ? 'active' : '' %>">
+                <i class="fas fa-car"></i> 차량관리
+            </a>
+
+            <div class="menu-category">플래너</div>
+            <a href="/console/planners" class="menu-item <%= currentPath === '/console/planners' ? 'active' : '' %>">
+                <i class="fas fa-user-tie"></i> 플래너 관리
+            </a>
+
+            <div class="menu-category">배너</div>
+            <a href="/console/banners" class="menu-item <%= currentPath === '/console/banners' ? 'active' : '' %>">
+                <i class="fas fa-image"></i> 배너관리
+            </a>
+
+            <div class="menu-category">게시판</div>
+            <a href="/console/youtube" class="menu-item <%= currentPath === '/console/youtube' ? 'active' : '' %>">
+                <i class="fas fa-play-circle"></i> 유튜브 관리
+            </a>
+
+            <div class="menu-category">문의</div>
+            <a href="/console/inquiries" class="menu-item <%= currentPath === '/console/inquiries' ? 'active' : '' %>">
+                <i class="fas fa-envelope-open-text"></i> 문의관리
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+        <header class="admin-header">
+            <div class="header-left">Admin Console</div>
+            <div class="header-right">
+                <div class="user-info"><span>시스템관리자</span>님 환영합니다</div>
+                <a href="/console/logout" class="btn-logout">로그아웃</a>
+            </div>
+        </header>
+
+        <section class="admin-content">
+            <%- body %>
+        </section>
+    </main>
+
+</body>
+</html>

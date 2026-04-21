@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 콘솔 - CARON</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background-color: #f8faff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Pretendard', sans-serif;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 43, 92, 0.08);
+            text-align: center;
+        }
+        .login-logo {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .login-logo img {
+            height: 45px;
+            display: block;
+            object-fit: contain;
+        }
+        .login-header {
+            margin-bottom: 35px;
+        }
+        .login-header h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #111;
+            margin-bottom: 10px;
+        }
+        .login-header p {
+            font-size: 15px;
+            color: #888;
+            font-weight: 500;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 8px;
+            margin-left: 5px;
+        }
+        .form-control {
+            width: 100%;
+            height: 55px;
+            padding: 0 20px;
+            border-radius: 15px;
+            border: 2px solid #eee;
+            font-size: 16px;
+            font-weight: 500;
+            outline: none;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            border-color: #002b5c;
+            background: #fcfdfe;
+        }
+        .btn-login {
+            width: 100%;
+            height: 60px;
+            background: #002b5c;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 10px 20px rgba(0, 43, 92, 0.15);
+        }
+        .btn-login:hover {
+            background: #001a35;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 43, 92, 0.2);
+        }
+        .login-footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #aaa;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo Section -->
+            <div class="login-logo">
+                <img src="/images/logo.png" alt="CARON LOGO">
+            </div>
+
+            <div class="login-header">
+                <h2>ADMIN CONSOLE</h2>
+                <p>관리자 계정으로 로그인해 주세요.</p>
+            </div>
+
+            <!-- Login Form -->
+            <form action="/console/login" method="POST">
+                <div class="form-group">
+                    <label for="username">아이디</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="아이디를 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="비밀번호를 입력하세요" required>
+                </div>
+
+                <button type="submit" class="btn-login">로그인</button>
+            </form>
+
+            <div class="login-footer">
+                &copy; 2024 CARON. All rights reserved.
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
