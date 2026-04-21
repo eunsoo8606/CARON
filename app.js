@@ -18,16 +18,8 @@ const Upload = require('./models/Upload');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Multer Storage Configuration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/uploads/cars');
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+// Multer Memory Storage Configuration (For Vercel Compatibility)
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Connect to Database
@@ -328,13 +320,20 @@ app.get('/console/cars/:id', authAdmin, async (req, res) => {
     }
 });
 
-// Image Serving API
+// Image Serving API (Serving from DB for Vercel Compatibility)
 app.get('/api/image/:id', async (req, res) => {
     try {
         const uploadItem = await Upload.findByPk(req.params.id);
-        if (!uploadItem) return res.status(404).send('Image not found');
-        res.sendFile(path.resolve(uploadItem.file_path));
+        if (!uploadItem || !uploadItem.image_data) return res.status(404).send('Image not found');
+        
+        const imgBuffer = Buffer.from(uploadItem.image_data, 'base64');
+        res.writeHead(200, {
+            'Content-Type': uploadItem.mime_type,
+            'Content-Length': imgBuffer.length
+        });
+        res.end(imgBuffer);
     } catch (err) {
+        console.error('Image Serving Error:', err);
         res.status(500).send('Error serving image');
     }
 });
@@ -355,18 +354,20 @@ app.post('/console/cars/save', authAdmin, upload.single('thumbnail'), async (req
     try {
         let thumbnail_id = null;
 
-        // If new file uploaded
+        // If new file uploaded (Vercel: Save to DB as Base64)
         if (req.file) {
+            const base64Data = req.file.buffer.toString('base64');
             const newUpload = await Upload.create({
                 original_name: req.file.originalname,
-                saved_name: req.file.filename,
-                file_path: req.file.path,
+                saved_name: `v_${Date.now()}_${req.file.originalname}`,
+                image_data: base64Data,
+                file_path: 'DB_STORED',
                 file_size: req.file.size,
                 mime_type: req.file.mimetype,
                 ref_type: 'car'
             });
             thumbnail_id = newUpload.id;
-            console.log('New Thumbnail Created:', thumbnail_id);
+            console.log('New Thumbnail Saved to DB:', thumbnail_id);
         }
 
         const carData = {
