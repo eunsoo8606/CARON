@@ -14,6 +14,7 @@ const Car = require('./models/Car');
 const Planner = require('./models/Planner');
 const AccessLog = require('./models/AccessLog');
 const Upload = require('./models/Upload');
+const { put } = require('@vercel/blob');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -320,11 +321,19 @@ app.get('/console/cars/:id', authAdmin, async (req, res) => {
     }
 });
 
-// Image Serving API (Serving from DB for Vercel Compatibility)
+// Image Serving API (Serving from Blob URL if exists, else DB)
 app.get('/api/image/:id', async (req, res) => {
     try {
         const uploadItem = await Upload.findByPk(req.params.id);
-        if (!uploadItem || !uploadItem.image_data) return res.status(404).send('Image not found');
+        if (!uploadItem) return res.status(404).send('Image not found');
+
+        // If it's a Vercel Blob URL, redirect to it for better performance
+        if (uploadItem.file_path && uploadItem.file_path.startsWith('http')) {
+            return res.redirect(uploadItem.file_path);
+        }
+
+        // Fallback for old Base64 images
+        if (!uploadItem.image_data) return res.status(404).send('Image data not found');
         
         const imgBuffer = Buffer.from(uploadItem.image_data, 'base64');
         res.writeHead(200, {
@@ -340,48 +349,53 @@ app.get('/api/image/:id', async (req, res) => {
 
 // Save Vehicle (New or Edit)
 app.post('/console/cars/save', authAdmin, upload.single('thumbnail'), async (req, res) => {
-    // 디버깅을 위한 로그 추가
     console.log('--- Car Save Request ---');
     console.log('Body:', req.body);
-    console.log('File:', req.file ? req.file.filename : 'No file');
+    console.log('File:', req.file ? req.file.originalname : 'No file');
 
     const {
         id, brand, name_ko, name_en, rent_fee, original_price, discount_rate,
         car_type, fuel_type, is_hot, is_fast_ship, is_visible, hashtags,
-        description, year, capacity, down_payment, period, mileage
+        description, year, capacity, down_payment, period, mileage, is_top10
     } = req.body;
 
     try {
         let thumbnail_id = null;
 
-        // If new file uploaded (Vercel: Save to DB as Base64)
+        // If new file uploaded (Vercel: Save to Vercel Blob)
         if (req.file) {
-            const base64Data = req.file.buffer.toString('base64');
+            console.log('Uploading to Vercel Blob...');
+            const blob = await put(`cars/${Date.now()}_${req.file.originalname}`, req.file.buffer, {
+                access: 'public',
+            });
+            console.log('Blob Upload Success:', blob.url);
+
             const newUpload = await Upload.create({
                 original_name: req.file.originalname,
-                saved_name: `v_${Date.now()}_${req.file.originalname}`,
-                image_data: base64Data,
-                file_path: 'DB_STORED',
+                saved_name: blob.pathname,
+                file_path: blob.url,
+                image_data: null, // No longer storing Base64 for new uploads
                 file_size: req.file.size,
                 mime_type: req.file.mimetype,
                 ref_type: 'car'
             });
             thumbnail_id = newUpload.id;
-            console.log('New Thumbnail Saved to DB:', thumbnail_id);
+            console.log('New Thumbnail Metadata Saved to DB:', thumbnail_id);
         }
 
         const carData = {
             brand,
             name_ko,
             name_en,
-            rent_fee: parseInt(rent_fee.replace(/,/g, '')) || 0,
-            original_price: parseInt(original_price.replace(/,/g, '')) || 0,
+            rent_fee: parseInt(String(rent_fee || '0').replace(/,/g, '')) || 0,
+            original_price: parseInt(String(original_price || '0').replace(/,/g, '')) || 0,
             discount_rate: parseFloat(discount_rate) || 0,
             car_type,
             fuel_type,
             is_fast_ship: is_fast_ship === '1' ? 1 : 0,
             is_visible: is_visible === '1' ? 1 : 0,
             is_hot: is_hot === '1' ? 1 : 0,
+            is_top10: is_top10 === '1' ? 1 : 0,
             hashtags: hashtags || '',
             year,
             capacity,
