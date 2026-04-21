@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+const mysql2 = require('mysql2');
 require('dotenv').config();
 
 // Sequelize 연결 설정
@@ -9,7 +10,8 @@ const sequelize = new Sequelize(
     {
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
-        dialect: process.env.DB_DIALECT,
+        dialect: 'mysql',
+        dialectModule: mysql2, // Vercel 환경에서 mysql2 로드 오류 해결을 위한 핵심 설정
         logging: false, // 콘솔에 SQL 로그가 너무 많이 찍히는 것을 방지
         pool: {
             max: 5,

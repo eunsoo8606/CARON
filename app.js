@@ -72,21 +72,21 @@ app.use((req, res, next) => {
 
 // Routes
 app.get('/', (req, res) => {
-    res.render('index', { 
+    res.render('index', {
         title: '신차장기렌트·리스 전문 - CARON'
     });
 });
 
 // Company Intro
 app.get('/about', (req, res) => {
-    res.render('about', { 
+    res.render('about', {
         title: '회사소개'
     });
 });
 
 // Lease Succession
 app.get('/succession', (req, res) => {
-    res.render('succession', { 
+    res.render('succession', {
         title: '리스/렌트 승계',
         hideSidebar: true
     });
@@ -104,7 +104,7 @@ app.get('/search', async (req, res) => {
         if (car_type) whereClause.car_type = car_type;
         if (fuel_type) whereClause.fuel_type = fuel_type;
         if (capacity) whereClause.capacity = capacity;
-        
+
         // 가격대 필터 처리 (출고가 기준)
         if (price_range) {
             if (price_range === '1') whereClause.original_price = { [Op.lte]: 20000000 };
@@ -113,7 +113,7 @@ app.get('/search', async (req, res) => {
             else if (price_range === '4') whereClause.original_price = { [Op.between]: [60000000, 80000000] };
             else if (price_range === '5') whereClause.original_price = { [Op.gte]: 80000000 };
         }
-        
+
         if (q) {
             whereClause[Op.or] = [
                 { name_ko: { [Op.like]: `%${q}%` } },
@@ -133,7 +133,7 @@ app.get('/search', async (req, res) => {
             order: orderClause
         });
 
-        res.render('search', { 
+        res.render('search', {
             title: '차량검색',
             cars,
             query: req.query
@@ -149,7 +149,7 @@ app.get('/api/cars/suggest', async (req, res) => {
     const { q } = req.query;
     console.log('--- Suggest API Request ---');
     console.log('Query:', q);
-    
+
     if (!q) return res.json([]);
 
     const { Op } = require('sequelize');
@@ -170,7 +170,7 @@ app.get('/api/cars/suggest', async (req, res) => {
         const uniqueSuggestions = [];
         const map = new Map();
         for (const item of cars) {
-            if(!map.has(item.name_ko)){
+            if (!map.has(item.name_ko)) {
                 map.set(item.name_ko, true);
                 uniqueSuggestions.push({
                     name_ko: item.name_ko,
@@ -195,15 +195,15 @@ app.get('/console', (req, res) => {
         try {
             jwt.verify(token, process.env.JWT_SECRET);
             return res.redirect('/console/dashboard');
-        } catch (e) {}
+        } catch (e) { }
     }
     res.render('admin/login', { layout: false });
 });
 
 // Admin Banners (Preparing)
 app.get('/console/banners', (req, res) => {
-    res.render('admin/preparing', { 
-        layout: 'layout/admin_base', 
+    res.render('admin/preparing', {
+        layout: 'layout/admin_base',
         title: '배너 관리',
         currentPath: '/console/banners'
     });
@@ -211,8 +211,8 @@ app.get('/console/banners', (req, res) => {
 
 // Admin YouTube (Preparing)
 app.get('/console/youtube', (req, res) => {
-    res.render('admin/preparing', { 
-        layout: 'layout/admin_base', 
+    res.render('admin/preparing', {
+        layout: 'layout/admin_base',
         title: '유튜브 관리',
         currentPath: '/console/youtube'
     });
@@ -220,8 +220,8 @@ app.get('/console/youtube', (req, res) => {
 
 // Admin Inquiries (Preparing)
 app.get('/console/inquiries', (req, res) => {
-    res.render('admin/preparing', { 
-        layout: 'layout/admin_base', 
+    res.render('admin/preparing', {
+        layout: 'layout/admin_base',
         title: '문의 관리',
         currentPath: '/console/inquiries'
     });
@@ -269,7 +269,7 @@ app.get('/console/dashboard', authAdmin, async (req, res) => {
             Planner.count()
         ]);
 
-        res.render('admin/dashboard', { 
+        res.render('admin/dashboard', {
             layout: 'layout/admin_base',
             adminName: req.admin.name,
             currentPath: '/console/dashboard',
@@ -346,10 +346,10 @@ app.post('/console/cars/save', authAdmin, upload.single('thumbnail'), async (req
     console.log('Body:', req.body);
     console.log('File:', req.file ? req.file.filename : 'No file');
 
-    const { 
-        id, brand, name_ko, name_en, rent_fee, original_price, discount_rate, 
-        car_type, fuel_type, is_hot, is_top10, is_fast_ship, is_visible, hashtags, 
-        description, year, capacity, down_payment, period, mileage 
+    const {
+        id, brand, name_ko, name_en, rent_fee, original_price, discount_rate,
+        car_type, fuel_type, is_hot, is_fast_ship, is_visible, hashtags,
+        description, year, capacity, down_payment, period, mileage
     } = req.body;
 
     try {
@@ -381,7 +381,6 @@ app.post('/console/cars/save', authAdmin, upload.single('thumbnail'), async (req
             is_fast_ship: is_fast_ship === '1' ? 1 : 0,
             is_visible: is_visible === '1' ? 1 : 0,
             is_hot: is_hot === '1' ? 1 : 0,
-            is_top10: is_top10 === '1' ? 1 : 0,
             hashtags: hashtags || '',
             year,
             capacity,
