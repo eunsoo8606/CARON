@@ -14,6 +14,7 @@ const Car = sequelize.define('Car', {
     is_fast_ship: { type: DataTypes.TINYINT(1), defaultValue: 0 },
     is_visible: { type: DataTypes.TINYINT(1), defaultValue: 1 },
     is_hot: { type: DataTypes.TINYINT(1), defaultValue: 0 },
+    is_top10: { type: DataTypes.TINYINT(1), defaultValue: 0 },
     thumbnail_id: { type: DataTypes.INTEGER },
     hashtags: { type: DataTypes.TEXT },
     description: { type: DataTypes.TEXT },

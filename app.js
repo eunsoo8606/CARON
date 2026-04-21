@@ -200,7 +200,32 @@ app.get('/console', (req, res) => {
     res.render('admin/login', { layout: false });
 });
 
-// Login Process
+// Admin Banners (Preparing)
+app.get('/console/banners', (req, res) => {
+    res.render('admin/preparing', { 
+        layout: 'layout/admin_base', 
+        title: '배너 관리',
+        currentPath: '/console/banners'
+    });
+});
+
+// Admin YouTube (Preparing)
+app.get('/console/youtube', (req, res) => {
+    res.render('admin/preparing', { 
+        layout: 'layout/admin_base', 
+        title: '유튜브 관리',
+        currentPath: '/console/youtube'
+    });
+});
+
+// Admin Inquiries (Preparing)
+app.get('/console/inquiries', (req, res) => {
+    res.render('admin/preparing', { 
+        layout: 'layout/admin_base', 
+        title: '문의 관리',
+        currentPath: '/console/inquiries'
+    });
+});
 app.post('/console/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -323,7 +348,7 @@ app.post('/console/cars/save', authAdmin, upload.single('thumbnail'), async (req
 
     const { 
         id, brand, name_ko, name_en, rent_fee, original_price, discount_rate, 
-        car_type, fuel_type, is_hot, is_fast_ship, is_visible, hashtags, 
+        car_type, fuel_type, is_hot, is_top10, is_fast_ship, is_visible, hashtags, 
         description, year, capacity, down_payment, period, mileage 
     } = req.body;
 
@@ -356,6 +381,7 @@ app.post('/console/cars/save', authAdmin, upload.single('thumbnail'), async (req
             is_fast_ship: is_fast_ship === '1' ? 1 : 0,
             is_visible: is_visible === '1' ? 1 : 0,
             is_hot: is_hot === '1' ? 1 : 0,
+            is_top10: is_top10 === '1' ? 1 : 0,
             hashtags: hashtags || '',
             year,
             capacity,

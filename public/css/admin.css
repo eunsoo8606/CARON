@@ -206,3 +206,64 @@ textarea.form-control { height: auto; padding: 15px; min-height: 100px; }
     .main-wrapper { margin-left: 0; }
 }
 
+/* Admin Toggle Switch */
+.switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    background: #f8faff;
+    border: 2px solid #eef2f6;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    transition: 0.3s;
+}
+.switch-container:has(input:checked) {
+    background: #eef7ee;
+    border-color: #dceddc;
+}
+.switch-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.switch-label strong { font-size: 16px; color: #333; }
+.switch-label span { font-size: 13px; color: #888; }
+
+.admin-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+}
+.admin-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 24px; width: 24px;
+    left: 4px; bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+input:checked + .slider { background-color: #4caf50; }
+input:checked + .slider:before { transform: translateX(28px); }
+
+/* Status Text Dynamic Color */
+input:checked ~ .status-text { color: #4caf50; }
+.status-text { 
+    margin-left: 12px; 
+    font-weight: 800; 
+    font-size: 14px; 
+    color: #888; 
+    min-width: 45px;
+}

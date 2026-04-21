@@ -144,6 +144,22 @@
 
             <div class="content-card">
                 <h3 class="card-title"><i class="fas fa-tags"></i> 마케팅 및 노출</h3>
+                
+                <!-- 노출 상태 전용 스위치 -->
+                <div class="switch-container">
+                    <div class="switch-label">
+                        <strong>차량 노출 상태</strong>
+                        <span>사이트 검색 결과 노출 여부</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <label class="admin-switch">
+                            <input type="checkbox" name="is_visible" value="1" <%= (car === null || car.is_visible) ? 'checked' : '' %> id="visibleToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="status-text" id="statusText"><%= (car === null || car.is_visible) ? '노출 중' : '숨김' %></span>
+                    </div>
+                </div>
+
                 <div class="checkbox-group">
                     <label class="checkbox-item">
                         <input type="checkbox" name="is_hot" value="1" <%= car && car.is_hot ? 'checked' : '' %>>
@@ -156,9 +172,9 @@
                         <strong>빠른 출고</strong> (즉시 출고 가능)
                     </label>
                     <label class="checkbox-item">
-                        <input type="checkbox" name="is_visible" value="1" <%= (car === null || car.is_visible) ? 'checked' : '' %>>
+                        <input type="checkbox" name="is_top10" value="1" <%= car && car.is_top10 ? 'checked' : '' %>>
                         <span class="checkmark"></span>
-                        <strong>노출 활성화</strong> (사이트에 노출)
+                        <strong>TOP 10 차량</strong> (인기 랭킹 표시)
                     </label>
                 </div>
 
@@ -205,4 +221,13 @@
         };
         if(this.files[0]) reader.readAsDataURL(this.files[0]);
     });
+
+    // 노출 상태 토글 텍스트 변경
+    const visibleToggle = document.getElementById('visibleToggle');
+    const statusText = document.getElementById('statusText');
+    if (visibleToggle && statusText) {
+        visibleToggle.addEventListener('change', function() {
+            statusText.textContent = this.checked ? '노출 중' : '숨김';
+        });
+    }
 </script>
