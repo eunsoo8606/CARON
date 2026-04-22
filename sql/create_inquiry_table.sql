@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `Inquiries` (
     `sale_type` VARCHAR(50) DEFAULT NULL COMMENT '판매 구분 (판매, 구매 등)',
     `succession_type` VARCHAR(50) DEFAULT NULL COMMENT '승계 구분 (리스, 렌트 등)',
     `name` VARCHAR(100) NOT NULL COMMENT '상담 신청자 성함',
+    `phone` TEXT NOT NULL COMMENT '상담 신청자 연락처 (암호화 저장)',
     `car_model` VARCHAR(200) DEFAULT NULL COMMENT '관심 차종 / 모델명',
     `contact_method` VARCHAR(100) DEFAULT NULL COMMENT '견적 안내 방법 (전화, 문자 등)',
     `privacy_agreement` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '개인정보 수집 및 이용 동의 여부 (0:미동의, 1:동의)',

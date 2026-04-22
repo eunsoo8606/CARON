@@ -29,6 +29,52 @@
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+    .modal-close:hover { color: #111; }
+
+    /* 플래너 프로필 스타일 */
+    .modal-planner-profile {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        background: #f8faff;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        border: 1px solid #eef2f8;
+    }
+    .modal-planner-profile .planner-thumb {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    .modal-planner-profile .planner-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .modal-planner-profile .planner-text .greeting {
+        font-size: 13px;
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+    .modal-planner-profile .planner-text .name {
+        font-size: 18px;
+        font-weight: 800;
+        color: #111;
+        margin-bottom: 4px;
+    }
+    .modal-planner-profile .planner-text .sub {
+        font-size: 13px;
+        color: #888;
+    }
+
+    .modal-body { padding: 30px; }
+    </style>
     <%- style %>
 </head>
 
@@ -130,34 +176,30 @@
                 <button class="modal-close" id="closeInquiryModal">&times;</button>
             </div>
             <div class="modal-body">
+                <!-- 플래너 프로필 영역 (기본 숨김) -->
+                <div id="modalPlannerProfile" class="modal-planner-profile" style="display: none;">
+                    <div class="planner-thumb">
+                        <img id="modalPlannerImg" src="" alt="플래너">
+                    </div>
+                    <div class="planner-text">
+                        <p class="greeting">안녕하세요!</p>
+                        <p class="name"><span id="modalPlannerName"></span> 플래너입니다.</p>
+                        <p class="sub">전문적인 맞춤 상담을 도와드리겠습니다.</p>
+                    </div>
+                </div>
+
                 <form class="modal-form">
                     <div class="input-group">
                         <label>성함</label>
-                        <input type="text" placeholder="성함을 입력해주세요" required>
+                        <input type="text" name="name" placeholder="성함을 입력해주세요" required>
                     </div>
                     <div class="input-group">
                         <label>연락처</label>
-                        <input type="tel" placeholder="010-0000-0000" required>
+                        <input type="tel" name="phone" placeholder="010-0000-0000" required>
                     </div>
                     <div class="input-group">
                         <label>관심차종</label>
-                        <input type="text" placeholder="예) 제네시스 G80">
-                    </div>
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label>판매/구매</label>
-                            <select name="category">
-                                <option value="sell">판매(내 차 보내기)</option>
-                                <option value="buy">구매(차량 인도받기)</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>상품구분</label>
-                            <select name="type">
-                                <option value="rent">장기렌트</option>
-                                <option value="lease">오토리스</option>
-                            </select>
-                        </div>
+                        <input type="text" name="car_model" placeholder="예) 제네시스 G80">
                     </div>
                     <div class="agreement-box">
                         <label>

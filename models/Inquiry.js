@@ -5,7 +5,12 @@ const Inquiry = sequelize.define('Inquiry', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     category: { type: DataTypes.STRING(50), defaultValue: '기본' },
     name: { type: DataTypes.STRING(100), allowNull: false },
+    phone: { type: DataTypes.TEXT, allowNull: false }, // 암호화된 데이터를 위해 TEXT로 변경
     car_model: { type: DataTypes.STRING(200) },
+    sale_type: { type: DataTypes.STRING(50) },
+    succession_type: { type: DataTypes.STRING(50) },
+    contact_method: { type: DataTypes.STRING(50) },
+    memo: { type: DataTypes.TEXT },
     status: { type: DataTypes.STRING(20), defaultValue: '접수' }
 }, {
     tableName: 'Inquiries',

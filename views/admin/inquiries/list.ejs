@@ -1,0 +1,207 @@
+<div class="page-header d-flex-between">
+    <div>
+        <h2 class="page-title">상담 문의 관리</h2>
+        <p class="page-subtitle">고객님들이 신청한 상담 문의 내역을 확인하고 관리합니다.</p>
+    </div>
+</div>
+
+<div class="content-card mb-4">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th width="80">번호</th>
+                    <th width="120">구분</th>
+                    <th width="120">성함</th>
+                    <th width="150">연락처</th>
+                    <th>신청 차종</th>
+                    <th>문의구분</th>
+                    <th>상품구분</th>
+                    <th>담당 플래너</th>
+                    <th width="120">진행 상태</th>
+                    <th width="160">신청일시</th>
+                    <th width="100">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (inquiries && inquiries.length > 0) { %>
+                    <% inquiries.forEach(inquiry => { %>
+                        <% 
+                            // 한글 변환 매핑
+                            const categoryMap = { 'sell': '판매', 'buy': '구매' };
+                            const typeMap = { 'rent': '장기렌트', 'lease': '오토리스' };
+                            const displayCategory = categoryMap[inquiry.category] || inquiry.category;
+                            // succession_type 또는 sale_type 둘 다 체크
+                            const displayType = typeMap[inquiry.succession_type] || typeMap[inquiry.sale_type] || inquiry.sale_type || '';
+                        %>
+                        <tr>
+                            <td><%= inquiry.id %></td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;">
+                                    <span class="badge-brand"><%= displayCategory %></span>
+                                    <% if (displayType) { %>
+                                        <span class="badge-brand" style="background: #6c757d; color: white;"><%= displayType %></span>
+                                    <% } %>
+                                </div>
+                            </td>
+                            <td><strong><%= inquiry.name %></strong></td>
+                            <td><%= inquiry.phone || '-' %></td>
+                            <td><%= inquiry.car_model || '-' %></td>
+                            <td><%= displayCategory || '-' %></td>
+                            <td>
+                                <% if (displayType && displayType !== '-' && displayType !== 'undefined') { %>
+                                    <%= displayType %>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% 
+                                    const plannerMatch = inquiry.memo ? inquiry.memo.match(/\[전담플래너: (.*?)\]/) : null;
+                                    const plannerName = plannerMatch ? plannerMatch[1] : '-';
+                                %>
+                                <%= plannerName %>
+                            </td>
+                            <td>
+                                <select class="form-control status-select" onchange="updateInquiryStatus(<%= inquiry.id %>, this.value)" 
+                                        style="height: 35px; padding: 0 10px; font-size: 13px; font-weight: 700; width: 100px; margin: 0 auto;
+                                        <%= inquiry.status === '접수' ? 'color: #ff9800;' : '' %>
+                                        <%= inquiry.status === '상담중' ? 'color: #2196f3;' : '' %>
+                                        <%= inquiry.status === '계약완료' ? 'color: #4caf50;' : '' %>
+                                        <%= inquiry.status === '취소' ? 'color: #f44336;' : '' %>">
+                                    <option value="접수" <%= inquiry.status === '접수' ? 'selected' : '' %>>접수</option>
+                                    <option value="상담중" <%= inquiry.status === '상담중' ? 'selected' : '' %>>상담중</option>
+                                    <option value="계약완료" <%= inquiry.status === '계약완료' ? 'selected' : '' %>>계약완료</option>
+                                    <option value="취소" <%= inquiry.status === '취소' ? 'selected' : '' %>>취소</option>
+                                </select>
+                            </td>
+                            <td><%= inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleString() : '-' %></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-edit" onclick='showInquiryDetail(<%- JSON.stringify(inquiry) %>)' title="상세보기"><i class="fas fa-search"></i></button>
+                                    <button class="btn-delete" onclick="deleteInquiry(<%= inquiry.id %>)" title="삭제"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="8" class="empty-row">접수된 상담 문의가 없습니다.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 상세 보기 모달 (심플 구현) -->
+<div id="inquiryModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1100; align-items:center; justify-content:center;">
+    <div class="content-card" style="width: 500px; max-width: 90%; position:relative;">
+        <h3 class="card-title"><i class="fas fa-info-circle"></i> 상담 상세 내역</h3>
+        <button onclick="closeModal()" style="position:absolute; top:20px; right:20px; border:none; background:none; cursor:pointer; font-size:20px; color:#888;"><i class="fas fa-times"></i></button>
+        
+        <div id="modalContent" style="margin-top:20px; font-size:15px; color:#444;">
+            <!-- JS로 채워짐 -->
+        </div>
+
+        <div style="margin-top:25px;">
+            <label style="display:block; font-weight:700; margin-bottom:10px;">관리자 메모</label>
+            <textarea id="adminMemo" class="form-control" style="height:120px;"></textarea>
+        </div>
+
+        <div style="margin-top:25px; text-align:right;">
+            <button onclick="saveMemo()" class="btn-primary-admin" style="padding:10px 25px;">메모 저장</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentInquiryId = null;
+
+function showInquiryDetail(inquiry) {
+    currentInquiryId = inquiry.id;
+    const modal = document.getElementById('inquiryModal');
+    const content = document.getElementById('modalContent');
+    const memoField = document.getElementById('adminMemo');
+
+    // 날짜 처리 안전하게
+    const dateStr = inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleString() : '미확인';
+
+    // 한글 변환 매핑
+    const categoryMap = { 'sell': '판매', 'buy': '구매' };
+    const typeMap = { 'rent': '장기렌트', 'lease': '오토리스' };
+    const displayCategory = categoryMap[inquiry.category] || inquiry.category;
+    const rawType = inquiry.succession_type || inquiry.sale_type;
+    const displayType = typeMap[rawType] || rawType || '-';
+    const isTypeValid = displayType !== '-' && displayType !== 'undefined';
+
+    const displayMethod = { 'tel': '전화', 'sms': '문자', 'katalk': '카톡' }[inquiry.contact_method] || inquiry.contact_method || '-';
+
+    // 플래너 이름 추출
+    const plannerMatch = inquiry.memo ? inquiry.memo.match(/\[전담플래너: (.*?)\]/) : null;
+    const plannerName = plannerMatch ? plannerMatch[1] : '-';
+
+    content.innerHTML = `
+        <p><strong>신청자:</strong> ${inquiry.name}</p>
+        <p><strong>연락처:</strong> ${inquiry.phone || '-'}</p>
+        <p><strong>안내방법:</strong> ${displayMethod}</p>
+        <p><strong>신청차종:</strong> ${inquiry.car_model || '-'}</p>
+        ${isTypeValid ? `<p><strong>상품구분:</strong> ${displayType}</p>` : ''}
+        <p><strong>담당 플래너:</strong> ${plannerName}</p>
+        <p><strong>문의구분:</strong> ${displayCategory}</p>
+        <p><strong>신청일:</strong> ${dateStr}</p>
+    `;
+    memoField.value = inquiry.memo || '';
+    modal.style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('inquiryModal').style.display = 'none';
+}
+
+async function saveMemo() {
+    const memo = document.getElementById('adminMemo').value;
+    try {
+        const response = await fetch(`/console/inquiries/${currentInquiryId}/memo`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ memo })
+        });
+        if (response.ok) {
+            alert('메모가 저장되었습니다.');
+            location.reload();
+        }
+    } catch (err) {
+        alert('저장 실패');
+    }
+}
+
+async function updateInquiryStatus(id, status) {
+    try {
+        const response = await fetch(`/console/inquiries/${id}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        });
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (err) {
+        alert('상태 변경 실패');
+    }
+}
+
+async function deleteInquiry(id) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    try {
+        const response = await fetch(`/console/inquiries/${id}/delete`, { method: 'POST' });
+        if (response.ok) location.reload();
+    } catch (err) {
+        alert('삭제 실패');
+    }
+}
+</script>
+
+<style>
+    .empty-row { padding: 80px 0 !important; color: #bbb; text-align: center; }
+    #modalContent p { margin-bottom: 12px; border-bottom: 1px solid #f5f5f5; padding-bottom: 8px; }
+    #modalContent strong { width: 100px; display: inline-block; color: #888; }
+</style>

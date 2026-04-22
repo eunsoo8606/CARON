@@ -36,7 +36,7 @@
                     <li><a href="/" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/' ? 'active' : '' %>">홈</a></li>
                     <li><a href="/about" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/about' ? 'active' : '' %>">회사소개</a></li>
                     <li><a href="/succession" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/succession' ? 'active' : '' %>">리스/렌트 승계</a></li>
-                    <li><a href="/search" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/search' ? 'active' : '' %>">차량검색</a></li>
+                    <li><a href="/car/search" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/car/search' ? 'active' : '' %>">차량검색</a></li>
                 </ul>
             </nav>
 
@@ -63,7 +63,7 @@
                 <li><a href="/" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/' ? 'active' : '' %>">홈</a></li>
                 <li><a href="/about" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/about' ? 'active' : '' %>">회사소개</a></li>
                 <li><a href="/succession" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/succession' ? 'active' : '' %>">리스/렌트 승계</a></li>
-                <li><a href="/search" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/search' ? 'active' : '' %>">차량검색</a></li>
+                <li><a href="/car/search" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/car/search' ? 'active' : '' %>">차량검색</a></li>
             </ul>
         </div>
     </div>
@@ -117,7 +117,7 @@
         const handleSearch = (keyword) => {
             if (!keyword) return;
             console.log('Searching for:', keyword);
-            window.location.href = `/search?q=${encodeURIComponent(keyword)}`;
+            window.location.href = `/car/search?q=${encodeURIComponent(keyword)}`;
         };
 
         topSearchInput.addEventListener('input', (e) => {
@@ -139,7 +139,7 @@
                     
                     if (data && data.length > 0) {
                         suggestionsBox.innerHTML = data.map(car => `
-                            <div class="suggestion-item" onclick="location.href='/search?q=${encodeURIComponent(car.name_ko)}'">
+                            <div class="suggestion-item" onclick="location.href='/car/search?q=${encodeURIComponent(car.name_ko)}'">
                                 <span class="brand">${car.brand}</span>
                                 <span class="name">${car.name_ko}</span>
                             </div>

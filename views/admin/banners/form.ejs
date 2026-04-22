@@ -1,0 +1,109 @@
+<div class="page-header">
+    <h2 class="page-title"><%= banner ? '배너 수정' : '새 배너 등록' %></h2>
+    <p class="page-subtitle">메인 페이지 상단 슬라이드에 노출될 이미지를 설정합니다.</p>
+</div>
+
+<form action="/console/banners/save" method="POST" enctype="multipart/form-data" class="admin-form">
+    <% if (banner) { %>
+        <input type="hidden" name="id" value="<%= banner.id %>">
+    <% } %>
+
+    <div class="form-grid">
+        <div class="form-column">
+            <div class="content-card mb-4">
+                <h3 class="card-title"><i class="fas fa-info-circle"></i> 배너 정보</h3>
+                
+                <div class="form-group">
+                    <label>배너 제목 (관리용) <span class="required">*</span></label>
+                    <input type="text" name="title" class="form-control" value="<%= banner ? banner.title : '' %>" placeholder="예: 4월 신차 특별 할인 프로모션" required>
+                </div>
+
+                <div class="form-group">
+                    <label>링크 URL</label>
+                    <input type="text" name="link_url" class="form-control" value="<%= banner ? banner.link_url : '' %>" placeholder="예: /search?brand=현대 (미입력 시 클릭 불가)">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>노출 순서</label>
+                        <input type="number" name="order_index" class="form-control" value="<%= banner ? banner.order_index : '0' %>">
+                        <p class="form-help">낮은 번호가 먼저 노출됩니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-column">
+            <div class="content-card">
+                <h3 class="card-title"><i class="fas fa-image"></i> 배너 이미지 <span class="required">*</span></h3>
+                <!-- label로 감싸면 자바스크립트 클릭 이벤트 없이도 input이 트리거됩니다 -->
+                <label for="imageInput" class="image-upload-box" id="imagePreviewBox" style="aspect-ratio: 16/6; cursor: pointer; display: flex;">
+                    <% if (banner && banner.image_id) { %>
+                        <img src="/api/image/<%= banner.image_id %>" class="preview-img" style="object-fit: cover;">
+                    <% } else { %>
+                        <div class="upload-placeholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>클릭하여 배너 이미지 업로드</p>
+                        </div>
+                    <% } %>
+                </label>
+                <input type="file" name="thumbnail" id="imageInput" accept="image/*" style="display: none;" <%= banner ? '' : 'required' %>>
+                <p class="form-help">권장 사이즈: 1920x600px (가로가 긴 와이드 이미지)</p>
+
+                <div class="switch-container mt-4">
+                    <div class="switch-label">
+                        <strong>노출 상태</strong>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <label class="admin-switch">
+                            <input type="checkbox" name="is_visible" value="1" <%= (banner === null || banner.is_visible) ? 'checked' : '' %> id="visibleToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="status-text" id="statusText"><%= (banner === null || banner.is_visible) ? '노출 중' : '숨김' %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="button" class="btn-cancel" onclick="history.back()">취소</button>
+        <button type="submit" class="btn-submit"><i class="fas fa-save"></i> 저장하기</button>
+    </div>
+</form>
+
+<script>
+    const imagePreviewBox = document.getElementById('imagePreviewBox');
+    const imageInput = document.getElementById('imageInput');
+
+    // 파일 선택 시 미리보기 처리 (클릭 이벤트는 label이 대신 처리하므로 필요 없음)
+    imageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const placeholder = imagePreviewBox.querySelector('.upload-placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+
+            let img = imagePreviewBox.querySelector('.preview-img');
+            if (!img) {
+                img = document.createElement('img');
+                img.className = 'preview-img';
+                img.style.objectFit = 'cover';
+                imagePreviewBox.prepend(img);
+            }
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // 노출 상태 토글 텍스트 변경
+    const visibleToggle = document.getElementById('visibleToggle');
+    const statusText = document.getElementById('statusText');
+    if (visibleToggle && statusText) {
+        visibleToggle.addEventListener('change', function() {
+            statusText.textContent = this.checked ? '노출 중' : '숨김';
+        });
+    }
+</script>

@@ -233,6 +233,7 @@
                         </div>
                         <div class="car-details">
                             <div class="car-meta">
+                                <% if (car.brand) { %><span class="car-brand-text"><%= car.brand %></span> · <% } %>
                                 <% if (car.year) { %><span class="car-year"><%= car.year %>년형</span><% } %>
                                 <span class="car-fuel-text"><%= car.fuel_type %></span>
                             </div>
@@ -699,7 +700,7 @@
                 if (value) params.set(key, value);
                 else params.delete(key);
             }
-            window.location.href = `/search?${params.toString()}`;
+            window.location.href = `/car/search?${params.toString()}`;
         };
 
         // 1. 브랜드 클릭
@@ -740,7 +741,7 @@
 
         // 5. 초기화
         resetBtn.addEventListener('click', () => {
-            window.location.href = '/search';
+            window.location.href = '/car/search';
         });
 
         // 5. 현재 필터 상태 UI 반영

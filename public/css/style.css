@@ -889,13 +889,17 @@ img { max-width: 100%; display: block; }
 
 .planner-btn {
     display: block;
+    width: 100%;
     padding: 14px 0;
     background: #f0f4f8;
     color: var(--text-main);
     font-size: 14px;
     font-weight: 700;
     border-radius: 12px;
+    border: none;
+    cursor: pointer;
     transition: 0.3s;
+    font-family: inherit;
 }
 
 .active .planner-btn {

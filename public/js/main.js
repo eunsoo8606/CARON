@@ -140,6 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 초기 로드 시 메인 영상 재생 버튼 활성화
+    initMainPlayButton();
+
     // 5. Elite Planner Sequential Highlight Animation
     const plannerCards = document.querySelectorAll('.planner-card');
     let currentPlannerIndex = 0;
@@ -201,15 +204,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 8. Quick Inquiry Modal Action
-    const quickInquiryBtns = document.querySelectorAll('.btn-quick-inquiry');
+    const quickInquiryBtns = document.querySelectorAll('.btn-quick-inquiry, .btn-planner-inquiry');
     const inquiryModal = document.getElementById('inquiryModal');
     const closeInquiryModal = document.getElementById('closeInquiryModal');
     const inquiryModalOverlay = document.querySelector('.modal-overlay');
 
     if (quickInquiryBtns.length > 0 && inquiryModal) {
+        const modalPlannerProfile = document.getElementById('modalPlannerProfile');
+        const modalPlannerImg = document.getElementById('modalPlannerImg');
+        const modalPlannerName = document.getElementById('modalPlannerName');
+
         quickInquiryBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.preventDefault(); // 기본 동작 방지
+                // 데스크탑 전용 사이드바 버튼이나 스티키 바 버튼은 모달을 띄우지 않음 (화면 너비로 체크)
+                if (window.innerWidth > 768 && btn.classList.contains('btn-sticky-submit')) {
+                    return; // 데스크탑 스티키 바는 폼 제출 로직이 따로 있으므로 무시
+                }
+                
+                e.preventDefault();
+
+                // 플래너 상담 버튼인 경우 프로필 노출
+                if (btn.classList.contains('btn-planner-inquiry')) {
+                    const imgUrl = btn.getAttribute('data-planner-img');
+                    const plannerName = btn.getAttribute('data-planner-name');
+                    
+                    modalPlannerImg.src = imgUrl;
+                    modalPlannerName.innerText = plannerName;
+                    modalPlannerProfile.style.display = 'flex';
+                } else {
+                    // 일반 문의 버튼인 경우 프로필 숨김
+                    modalPlannerProfile.style.display = 'none';
+                    modalPlannerName.innerText = '';
+                }
+
                 inquiryModal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             });
@@ -240,9 +267,97 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.style.overflow = '';
             }
         });
+
+        // --- 상담 신청 폼 제출 로직 추가 ---
+        const modalForm = inquiryModal.querySelector('.modal-form');
+        if (modalForm) {
+            modalForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); // 페이지 새로고침 방지
+
+                const modalPlannerName = document.getElementById('modalPlannerName').innerText;
+                const data = {
+                    name: modalForm.querySelector('input[name="name"]').value,
+                    phone: modalForm.querySelector('input[name="phone"]').value,
+                    car_model: modalForm.querySelector('input[name="car_model"]').value,
+                    category: '기본',
+                    sale_type: '-',
+                    contact_method: '전화',
+                    memo: modalPlannerName ? `[전담플래너: ${modalPlannerName}]` : ''
+                };
+
+                try {
+                    const response = await fetch('/api/inquiry', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('상담 신청이 완료되었습니다! 확인 후 연락드리겠습니다.');
+                        modalForm.reset();
+                        inquiryModal.classList.remove('active');
+                        document.body.style.overflow = '';
+                    } else {
+                        alert('오류가 발생했습니다: ' + result.message);
+                    }
+                } catch (err) {
+                    console.error('Submission Error:', err);
+                    alert('서버와 통신 중 오류가 발생했습니다.');
+                }
+            });
+        }
     }
 
-    // 9. Refresh Logic
+    // 9. Sidebar Form Submission (Desktop)
+    const sidebarForm = document.querySelector('.sidebar-form');
+    if (sidebarForm) {
+        sidebarForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nameInput = sidebarForm.querySelector('input[placeholder="성함*"]');
+            const carInput = sidebarForm.querySelector('input[placeholder="차종"]');
+            const phoneInput = sidebarForm.querySelector('input[placeholder="연락처* ex) 01012341234"]');
+            const methodInput = sidebarForm.querySelector('input[name="method"]:checked');
+
+            const data = {
+                name: nameInput.value,
+                phone: phoneInput.value,
+                car_model: carInput.value,
+                contact_method: methodInput ? methodInput.value : '전화',
+                category: '기본'
+            };
+
+            if (!data.name || !data.phone) {
+                alert('성함과 연락처는 필수 입력 사항입니다.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('상담 신청이 완료되었습니다!');
+                    sidebarForm.reset();
+                } else {
+                    alert('오류 발생: ' + result.message);
+                }
+            } catch (err) {
+                console.error('Sidebar Submit Error:', err);
+                alert('서버와 통신 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    // 10. Refresh Logic
     window.addEventListener('load', () => {
         ScrollTrigger.refresh();
     });

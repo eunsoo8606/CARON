@@ -14,7 +14,41 @@ const Car = require('./models/Car');
 const Planner = require('./models/Planner');
 const AccessLog = require('./models/AccessLog');
 const Upload = require('./models/Upload');
+const Banner = require('./models/Banner');
+const Youtube = require('./models/Youtube');
 const { put } = require('@vercel/blob');
+const crypto = require('crypto');
+
+// Encryption Settings
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'landinglab_caron_secret_key_2024'; // 32 chars
+const IV_LENGTH = 16;
+
+function encrypt(text) {
+    if (!text) return text;
+    let iv = crypto.randomBytes(IV_LENGTH);
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY.padEnd(32).substring(0, 32)), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+}
+
+function decrypt(text) {
+    if (!text || !text.includes(':')) return text;
+    let textParts = text.split(':');
+    let iv = Buffer.from(textParts.shift(), 'hex');
+    let encryptedText = Buffer.from(textParts.join(':'), 'hex');
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY.padEnd(32).substring(0, 32)), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+}
+
+// Helper to extract YouTube Video ID
+function extractYoutubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length == 11) ? match[2] : null;
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,10 +98,29 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.get('/', (req, res) => {
-    res.render('index', {
-        title: '신차장기렌트·리스 전문 - CARON'
-    });
+app.get('/', async (req, res) => {
+    try {
+        const banners = await Banner.findAll({
+            where: { is_visible: 1 },
+            order: [['order_index', 'ASC']]
+        });
+        const youtubeVideos = await Youtube.findAll({
+            where: { is_visible: 1 },
+            order: [['order_index', 'ASC']]
+        });
+        res.render('index', {
+            title: '신차장기렌트·리스 전문 - CARON',
+            banners,
+            youtubeVideos
+        });
+    } catch (err) {
+        console.error('Main Page Load Error:', err);
+        res.render('index', {
+            title: '신차장기렌트·리스 전문 - CARON',
+            banners: [],
+            youtubeVideos: []
+        });
+    }
 });
 
 // Company Intro
@@ -86,7 +139,7 @@ app.get('/succession', (req, res) => {
 });
 
 // Vehicle Search
-app.get('/search', async (req, res) => {
+app.get('/car/search', async (req, res) => {
     const { brand, car_type, fuel_type, capacity, price_range, q } = req.query;
     const { Op } = require('sequelize');
 
@@ -193,32 +246,251 @@ app.get('/console', (req, res) => {
     res.render('admin/login', { layout: false });
 });
 
-// Admin Banners (Preparing)
-app.get('/console/banners', (req, res) => {
-    res.render('admin/preparing', {
+// Admin Banners
+app.get('/console/banners', authAdmin, async (req, res) => {
+    try {
+        const banners = await Banner.findAll({
+            order: [['order_index', 'ASC']]
+        });
+        res.render('admin/banners/list', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/banners',
+            banners
+        });
+    } catch (err) {
+        res.status(500).send('Server Error');
+    }
+});
+
+app.get('/console/banners/new', authAdmin, (req, res) => {
+    res.render('admin/banners/form', {
         layout: 'layout/admin_base',
-        title: '배너 관리',
-        currentPath: '/console/banners'
+        adminName: req.admin.name,
+        currentPath: '/console/banners',
+        banner: null
     });
 });
 
-// Admin YouTube (Preparing)
-app.get('/console/youtube', (req, res) => {
-    res.render('admin/preparing', {
+app.get('/console/banners/:id', authAdmin, async (req, res) => {
+    try {
+        const banner = await Banner.findByPk(req.params.id);
+        res.render('admin/banners/form', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/banners',
+            banner
+        });
+    } catch (err) {
+        res.status(500).send('Server Error');
+    }
+});
+
+app.post('/console/banners/save', authAdmin, upload.single('thumbnail'), async (req, res) => {
+    const { id, title, link_url, order_index, is_visible } = req.body;
+    try {
+        let image_id = null;
+        
+        if (req.file) {
+            const blob = await put(`banners/${Date.now()}_${req.file.originalname}`, req.file.buffer, {
+                access: 'public',
+            });
+            const newUpload = await Upload.create({
+                original_name: req.file.originalname,
+                saved_name: blob.pathname,
+                file_path: blob.url,
+                file_size: req.file.size,
+                mime_type: req.file.mimetype,
+                ref_type: 'banner'
+            });
+            image_id = newUpload.id;
+        }
+
+        const bannerData = {
+            title,
+            link_url,
+            order_index: parseInt(order_index) || 0,
+            is_visible: is_visible === '1' ? 1 : 0
+        };
+
+        if (image_id) bannerData.image_id = image_id;
+
+        if (id) {
+            await Banner.update(bannerData, { where: { id } });
+        } else {
+            if (!image_id) return res.send('<script>alert("이미지는 필수입니다."); history.back();</script>');
+            await Banner.create(bannerData);
+        }
+        res.redirect('/console/banners');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error saving banner');
+    }
+});
+
+app.post('/console/banners/:id/delete', authAdmin, async (req, res) => {
+    try {
+        await Banner.destroy({ where: { id: req.params.id } });
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send('Delete error');
+    }
+});
+
+// Admin YouTube
+app.get('/console/youtube', authAdmin, async (req, res) => {
+    try {
+        const videos = await Youtube.findAll({
+            order: [['order_index', 'ASC']]
+        });
+        res.render('admin/youtube/list', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/youtube',
+            videos
+        });
+    } catch (err) {
+        res.status(500).send('Server Error');
+    }
+});
+
+app.get('/console/youtube/new', authAdmin, (req, res) => {
+    res.render('admin/youtube/form', {
         layout: 'layout/admin_base',
-        title: '유튜브 관리',
-        currentPath: '/console/youtube'
+        adminName: req.admin.name,
+        currentPath: '/console/youtube',
+        video: null
     });
 });
 
-// Admin Inquiries (Preparing)
-app.get('/console/inquiries', (req, res) => {
-    res.render('admin/preparing', {
-        layout: 'layout/admin_base',
-        title: '문의 관리',
-        currentPath: '/console/inquiries'
-    });
+app.get('/console/youtube/:id', authAdmin, async (req, res) => {
+    try {
+        const video = await Youtube.findByPk(req.params.id);
+        res.render('admin/youtube/form', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/youtube',
+            video
+        });
+    } catch (err) {
+        res.status(500).send('Server Error');
+    }
 });
+
+app.post('/console/youtube/save', authAdmin, async (req, res) => {
+    const { id, youtube_url, title, duration, order_index, is_visible } = req.body;
+    
+    const video_id = extractYoutubeId(youtube_url);
+    if (!video_id) return res.send('<script>alert("올바른 유튜브 주소를 입력해주세요."); history.back();</script>');
+
+    try {
+        const videoData = {
+            video_id,
+            title,
+            duration,
+            order_index: parseInt(order_index) || 0,
+            is_visible: is_visible === '1' ? 1 : 0
+        };
+
+        if (id) {
+            await Youtube.update(videoData, { where: { id } });
+        } else {
+            await Youtube.create(videoData);
+        }
+        res.redirect('/console/youtube');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error saving video');
+    }
+});
+
+app.post('/console/youtube/:id/delete', authAdmin, async (req, res) => {
+    try {
+        await Youtube.destroy({ where: { id: req.params.id } });
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send('Delete error');
+    }
+});
+
+// Admin Inquiries
+app.get('/console/inquiries', authAdmin, async (req, res) => {
+    try {
+        const inquiries = await Inquiry.findAll({
+            order: [['created_at', 'DESC']]
+        });
+        
+        // 연락처 복호화 처리
+        const decryptedInquiries = inquiries.map(item => {
+            const data = item.toJSON();
+            data.phone = decrypt(data.phone);
+            return data;
+        });
+
+        res.render('admin/inquiries/list', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/inquiries',
+            inquiries: decryptedInquiries
+        });
+    } catch (err) {
+        console.error('--- [Inquiry List Error] ---');
+        console.error(err);
+        res.status(500).send(`Server Error: ${err.message}`);
+    }
+});
+
+app.post('/console/inquiries/:id/status', authAdmin, async (req, res) => {
+    const { status } = req.body;
+    try {
+        await Inquiry.update({ status }, { where: { id: req.params.id } });
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send('Error updating status');
+    }
+});
+
+app.post('/console/inquiries/:id/memo', authAdmin, async (req, res) => {
+    const { memo } = req.body;
+    try {
+        await Inquiry.update({ memo }, { where: { id: req.params.id } });
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send('Error saving memo');
+    }
+});
+
+app.post('/console/inquiries/:id/delete', authAdmin, async (req, res) => {
+    try {
+        await Inquiry.destroy({ where: { id: req.params.id } });
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send('Delete error');
+    }
+});
+
+// Public Inquiry API (Customer Submission)
+app.post('/api/inquiry', async (req, res) => {
+    const { name, phone, car_model, category, sale_type, succession_type, contact_method } = req.body;
+    
+    try {
+        await Inquiry.create({
+            name,
+            phone: encrypt(phone), // 연락처 암호화 저장
+            car_model,
+            category: category || '기본',
+            sale_type,
+            succession_type,
+            contact_method,
+            status: '접수'
+        });
+        res.json({ success: true, message: '상담 신청이 완료되었습니다.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: '상담 신청 중 오류가 발생했습니다.' });
+    }
+});
+
 app.post('/console/login', async (req, res) => {
     const { username, password } = req.body;
 

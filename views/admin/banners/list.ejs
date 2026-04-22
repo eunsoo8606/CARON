@@ -1,0 +1,102 @@
+<div class="page-header d-flex-between">
+    <div>
+        <h2 class="page-title">배너 관리</h2>
+        <p class="page-subtitle">메인 페이지 상단 비주얼 슬라이드 배너를 관리합니다.</p>
+    </div>
+    <a href="/console/banners/new" class="btn-primary-admin">
+        <i class="fas fa-plus"></i> 새 배너 등록
+    </a>
+</div>
+
+<div class="content-card mb-4">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th width="60">순서</th>
+                    <th width="200">이미지</th>
+                    <th>제목 (관리용)</th>
+                    <th>링크 URL</th>
+                    <th width="100">상태</th>
+                    <th width="130">등록일</th>
+                    <th width="130">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (banners && banners.length > 0) { %>
+                    <% banners.forEach(banner => { %>
+                        <tr>
+                            <td><%= banner.order_index %></td>
+                            <td>
+                                <div class="car-thumb" style="width: 180px; height: 60px;">
+                                    <% if (banner.image_id) { %>
+                                        <img src="/api/image/<%= banner.image_id %>" alt="banner" style="object-fit: cover;">
+                                    <% } else { %>
+                                        <div class="no-img">No Img</div>
+                                    <% } %>
+                                </div>
+                            </td>
+                            <td class="text-left">
+                                <strong><%= banner.title || '제목 없음' %></strong>
+                            </td>
+                            <td class="text-left">
+                                <span class="text-muted"><%= banner.link_url || '-' %></span>
+                            </td>
+                            <td>
+                                <% if (banner.is_visible) { %>
+                                    <span class="status-active">노출중</span>
+                                <% } else { %>
+                                    <span class="status-inactive">숨김</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <%= banner.created_at ? banner.created_at.toISOString().split('T')[0] : '-' %>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a href="/console/banners/<%= banner.id %>" class="btn-edit" title="수정"><i class="fas fa-edit"></i></a>
+                                    <button type="button" class="btn-delete" onclick="handleBannerDelete(this, <%= banner.id %>)" title="삭제"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="7" class="empty-row">등록된 배너가 없습니다.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+async function handleBannerDelete(btn, id) {
+    if (!confirm('정말 이 배너를 삭제하시겠습니까?')) return;
+    
+    try {
+        const response = await fetch(`/console/banners/${id}/delete`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            alert('삭제되었습니다.');
+            location.reload();
+        } else {
+            alert('삭제 중 오류가 발생했습니다.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('삭제 요청에 실패했습니다.');
+    }
+}
+</script>
+
+<style>
+    .empty-row {
+        padding: 100px 0 !important;
+        color: #bbb;
+        font-weight: 500;
+        text-align: center;
+    }
+</style>

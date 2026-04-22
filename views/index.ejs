@@ -3,10 +3,17 @@
     <section class="hero">
         <div class="swiper hero-swiper">
             <div class="swiper-wrapper">
-                <div class="swiper-slide" style="background-image: url('/images/banner_ex1.png');"></div>
-                <div class="swiper-slide" style="background-image: url('/images/banner_ex2.png');"></div>
-                <div class="swiper-slide" style="background-image: url('/images/banner_ex3.png');"></div>
-                <div class="swiper-slide" style="background-image: url('/images/banner_ex4.png');"></div>
+                <% if (banners && banners.length > 0) { %>
+                    <% banners.forEach(banner => { %>
+                        <div class="swiper-slide" 
+                             style="background-image: url('/api/image/<%= banner.image_id %>'); cursor: <%= banner.link_url ? 'pointer' : 'default' %>"
+                             onclick="<%= banner.link_url ? `location.href='${banner.link_url}'` : '' %>">
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="swiper-slide" style="background-image: url('/images/banner_ex1.png');"></div>
+                    <div class="swiper-slide" style="background-image: url('/images/banner_ex2.png');"></div>
+                <% } %>
             </div>
             <div class="swiper-pagination"></div>
         </div>
@@ -18,7 +25,7 @@
     <div class="container">
         <div class="section-header">
             <h3 class="section-title">4월 인기 <span>TOP 10</span></h3>
-            <a href="/search" class="view-more">더보기</a>
+            <a href="/car/search" class="view-more">더보기</a>
         </div>
 
         <% const vehicles=[ { name: '제네시스 G80' , price: '월 78만원~' , img: '/images/genesis.png' , tag: '인기' }, {
@@ -69,13 +76,10 @@
         <div class="youtube-player-layout">
             <!-- Main Player Area -->
             <div class="player-main" id="mainPlayer">
-                <% const youtubeVideos=[ { id: 'S_iSOfx_ZAs' , title: 'KS오토플랜 카니발 하이리무진 출고기' , duration: '12:45' }, {
-                    id: '1Z3m2_a-mI0' , title: '그랜저 하이브리드 연비 실측 리뷰' , duration: '08:20' }, { id: 'V9PshY0rY_k' ,
-                    title: '팰리세이드 대형 SUV 리얼 시승기' , duration: '15:10' }, { id: '7mK_H0tK0C8' , title: '쏘렌토 중형 SUV의 정석 리뷰'
-                    , duration: '10:35' } ]; %>
-                    <div class="main-video-card" data-video-id="<%= youtubeVideos[0].id %>">
+                <% if (youtubeVideos && youtubeVideos.length > 0) { %>
+                    <div class="main-video-card" data-video-id="<%= youtubeVideos[0].video_id %>">
                         <div class="video-thumb"
-                            style="background-image: url('https://img.youtube.com/vi/<%= youtubeVideos[0].id %>/maxresdefault.jpg')">
+                            style="background-image: url('https://img.youtube.com/vi/<%= youtubeVideos[0].video_id %>/maxresdefault.jpg')">
                             <div class="play-button">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
                                     fill="currentColor">
@@ -89,28 +93,49 @@
                             </h4>
                         </div>
                     </div>
+                <% } else { %>
+                    <div class="main-video-card">
+                        <div class="video-thumb" style="background: #111; display: flex; align-items: center; justify-content: center; color: #555;">
+                            등록된 영상이 없습니다.
+                        </div>
+                    </div>
+                <% } %>
             </div>
 
             <!-- Playlist Area -->
             <div class="player-sidebar">
                 <div class="playlist-header">다음 영상</div>
                 <div class="playlist-items">
-                    <% youtubeVideos.forEach((video, index)=> { %>
-                        <div class="playlist-item <%= index === 0 ? 'active' : '' %>" data-video-id="<%= video.id %>">
-                            <div class="item-thumb"
-                                style="background-image: url('https://img.youtube.com/vi/<%= video.id %>/mqdefault.jpg')">
-                                <span class="item-duration">
-                                    <%= video.duration %>
-                                </span>
+                    <% if (youtubeVideos && youtubeVideos.length > 1) { %>
+                        <% youtubeVideos.forEach((video, index)=> { %>
+                            <div class="playlist-item <%= index === 0 ? 'active' : '' %>" data-video-id="<%= video.video_id %>">
+                                <div class="item-thumb"
+                                    style="background-image: url('https://img.youtube.com/vi/<%= video.video_id %>/mqdefault.jpg')">
+                                    <span class="item-duration">
+                                        <%= video.duration %>
+                                    </span>
+                                </div>
+                                <div class="item-info">
+                                    <p class="item-title">
+                                        <%= video.title %>
+                                    </p>
+                                    <p class="item-channel">KS오토플랜</p>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else if (youtubeVideos && youtubeVideos.length === 1) { %>
+                        <div class="playlist-item active" data-video-id="<%= youtubeVideos[0].video_id %>">
+                            <div class="item-thumb" style="background-image: url('https://img.youtube.com/vi/<%= youtubeVideos[0].video_id %>/mqdefault.jpg')">
+                                <span class="item-duration"><%= youtubeVideos[0].duration %></span>
                             </div>
                             <div class="item-info">
-                                <p class="item-title">
-                                    <%= video.title %>
-                                </p>
+                                <p class="item-title"><%= youtubeVideos[0].title %></p>
                                 <p class="item-channel">KS오토플랜</p>
                             </div>
                         </div>
-                        <% }); %>
+                    <% } else { %>
+                        <p style="padding: 20px; color: #888; text-align: center;">영상을 등록해주세요.</p>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -166,7 +191,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <a href="#inquiry" class="planner-btn">이 플래너에게 상담받기</a>
+                            <button type="button" class="planner-btn btn-planner-inquiry" data-planner-img="<%= planner.img %>" data-planner-name="<%= planner.name %>">이 플래너에게 상담받기</button>
                         </div>
                     </div>
                     <% }); %>
