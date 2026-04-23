@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
-const { connectDB } = require('./config/database');
+const { sequelize, connectDB } = require('./config/database');
 const { Op } = require('sequelize');
 const multer = require('multer');
 const Admin = require('./models/Admin');
@@ -91,9 +91,37 @@ app.set('layout', 'layout/base');
 app.set('layout extractScripts', true);
 app.set('layout extractStyles', true);
 
-// Middleware to pass current path to all templates
-app.use((req, res, next) => {
+// Middleware to pass current path and admin info to all templates
+app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
+    res.locals.admin = null;
+
+    const token = req.cookies.adminToken;
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const admin = await Admin.findByPk(decoded.id);
+            if (admin) {
+                const adminData = admin.get({ plain: true });
+                
+                // 만약 플래너라면 프로필 이미지 조회
+                const planner = await Planner.findOne({ where: { admin_id: admin.id } });
+                if (planner) {
+                    const profileImg = await Upload.findOne({
+                        where: { ref_type: 'planner', ref_id: planner.id },
+                        order: [['created_at', 'DESC']]
+                    });
+                    adminData.profile_img = profileImg ? `/api/image/${profileImg.id}` : '/images/default_user.png';
+                } else {
+                    adminData.profile_img = '/images/default_user.png';
+                }
+                
+                res.locals.admin = adminData;
+            }
+        } catch (err) {
+            // 토큰이 유효하지 않으면 무시
+        }
+    }
     next();
 });
 
@@ -108,17 +136,38 @@ app.get('/', async (req, res) => {
             where: { is_visible: 1 },
             order: [['order_index', 'ASC']]
         });
+        const planners = await Planner.findAll({
+            include: [{
+                model: Admin,
+                attributes: ['name', 'use_yn'],
+                where: { use_yn: 'Y' }
+            }],
+            order: [['deliveries', 'DESC'], ['created_at', 'DESC']]
+        });
+
+        // 각 플래너의 관리자 프로필 이미지를 별도로 조회 (또는 관계 설정 필요)
+        for (let p of planners) {
+            const profileImg = await Upload.findOne({
+                where: { ref_type: 'planner', ref_id: p.id },
+                order: [['created_at', 'DESC']]
+            });
+            p.setDataValue('profile_img', profileImg ? `/api/image/${profileImg.id}` : '/images/default_user.png');
+            // Admin의 이름을 Planner의 이름으로 설정 (뷰 호환성 유지)
+            p.setDataValue('name', p.Admin ? p.Admin.name : '이름없음');
+        }
         res.render('index', {
             title: '신차장기렌트·리스 전문 - CARON',
             banners,
-            youtubeVideos
+            youtubeVideos,
+            planners
         });
     } catch (err) {
         console.error('Main Page Load Error:', err);
         res.render('index', {
             title: '신차장기렌트·리스 전문 - CARON',
             banners: [],
-            youtubeVideos: []
+            youtubeVideos: [],
+            planners: []
         });
     }
 });
@@ -693,6 +742,161 @@ app.post('/console/cars/save', authAdmin, upload.single('thumbnail'), async (req
 app.post('/console/cars/:id/delete', authAdmin, async (req, res) => {
     try {
         await Car.destroy({ where: { id: req.params.id } });
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send('Delete error');
+    }
+});
+
+// Planner Management List
+app.get('/console/planners', authAdmin, async (req, res) => {
+    try {
+        const planners = await Planner.findAll({
+            include: [{ model: Admin, attributes: ['name'] }],
+            order: [['priority', 'DESC'], ['created_at', 'DESC']]
+        });
+
+        for (let p of planners) {
+            const profileImg = await Upload.findOne({
+                where: { ref_type: 'planner', ref_id: p.id },
+                order: [['created_at', 'DESC']]
+            });
+            p.setDataValue('profile_img', profileImg ? `/api/image/${profileImg.id}` : '/images/default_user.png');
+            // Admin의 이름을 Planner의 이름으로 설정 (뷰 호환성 유지)
+            p.setDataValue('name', p.Admin ? p.Admin.name : '이름없음');
+        }
+        res.render('admin/planners/list', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/planners',
+            planners
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Planner Create/Edit Forms
+app.get('/console/planners/new', authAdmin, (req, res) => {
+    res.render('admin/planners/form', {
+        layout: 'layout/admin_base',
+        adminName: req.admin.name,
+        currentPath: '/console/planners',
+        planner: null
+    });
+});
+
+app.get('/console/planners/edit/:id', authAdmin, async (req, res) => {
+    try {
+        const planner = await Planner.findByPk(req.params.id, {
+            include: [{ model: Admin }]
+        });
+        res.render('admin/planners/form', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/planners',
+            planner
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Save/Update Planner
+app.post('/console/planners/save', authAdmin, upload.single('profile_img'), async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        console.log('--- Planner/Admin Integrated Save ---');
+        const { id, username, password, name, position, specialty, satisfaction, deliveries, intro, priority, use_yn } = req.body;
+        const currentUseYn = use_yn === 'Y' ? 'Y' : 'N';
+        
+        let adminId;
+        if (id) {
+            // 수정 모드
+            const planner = await Planner.findByPk(id);
+            adminId = planner.admin_id;
+
+            const adminUpdateData = { name, use_yn: currentUseYn };
+            if (password && password.trim() !== '') {
+                adminUpdateData.password = await bcrypt.hash(password, 10);
+            }
+            // username은 보통 변경하지 않으나 필요시 추가 가능
+            if (username) adminUpdateData.username = username;
+
+            await Admin.update(adminUpdateData, { where: { id: adminId }, transaction: t });
+            
+            const plannerUpdateData = {
+                position,
+                specialty,
+                satisfaction,
+                deliveries: parseInt(String(deliveries || '0').replace(/[^0-9]/g, '')) || 0,
+                intro,
+                priority: parseInt(priority) || 0
+            };
+            await Planner.update(plannerUpdateData, { where: { id: id }, transaction: t });
+        } else {
+            // 신규 등록 모드
+            if (!username || !password || !name) {
+                throw new Error('아이디, 비밀번호, 이름은 필수입니다.');
+            }
+
+            // 1. Admin 계정 생성
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newAdmin = await Admin.create({
+                username,
+                password: hashedPassword,
+                name,
+                role: '플래너',
+                use_yn: currentUseYn
+            }, { transaction: t });
+            
+            adminId = newAdmin.id;
+
+            // 2. Planner 상세 정보 생성
+            const newPlanner = await Planner.create({
+                admin_id: adminId,
+                position,
+                specialty,
+                satisfaction,
+                deliveries: parseInt(String(deliveries || '0').replace(/[^0-9]/g, '')) || 0,
+                intro,
+                priority: parseInt(priority) || 0
+            }, { transaction: t });
+            
+            id = newPlanner.id; // 이미지 업로드를 위해 ID 할당
+        }
+
+        // 이미지 업로드 처리 (트랜잭션 커밋 후에 해도 되지만 안전하게 포함)
+        if (req.file) {
+            const blob = await put(`planners/${Date.now()}_${req.file.originalname}`, req.file.buffer, {
+                access: 'public',
+            });
+            await Upload.create({
+                original_name: req.file.originalname,
+                saved_name: blob.pathname,
+                file_path: blob.url,
+                file_size: req.file.size,
+                mime_type: req.file.mimetype,
+                ref_type: 'planner',
+                ref_id: id || planner.id
+            }, { transaction: t });
+        }
+
+        await t.commit();
+        res.redirect('/console/planners');
+    } catch (err) {
+        await t.rollback();
+        console.error('Planner Save Error:', err);
+        res.status(500).send(`Error saving planner: ${err.message}`);
+    }
+});
+
+// Delete Planner
+app.post('/console/planners/:id/delete', authAdmin, async (req, res) => {
+    try {
+        await Planner.destroy({ where: { id: req.params.id } });
         res.sendStatus(200);
     } catch (err) {
         res.status(500).send('Delete error');

@@ -76,7 +76,16 @@
         <header class="admin-header">
             <div class="header-left">Admin Console</div>
             <div class="header-right">
-                <div class="user-info"><span>시스템관리자</span>님 환영합니다</div>
+                <div class="user-info">
+                    <% if (admin && admin.profile_img) { %>
+                        <div class="admin-profile-thumb">
+                            <img src="<%= admin.profile_img %>" alt="profile">
+                        </div>
+                    <% } else { %>
+                        <i class="fas fa-user-circle"></i>
+                    <% } %>
+                    <span><%= admin ? admin.name : '시스템관리자' %></span>님 환영합니다
+                </div>
                 <a href="/console/logout" class="btn-logout">로그아웃</a>
             </div>
         </header>

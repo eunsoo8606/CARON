@@ -26,6 +26,10 @@ const Admin = sequelize.define('Admin', {
     },
     last_login_at: {
         type: DataTypes.DATE
+    },
+    use_yn: {
+        type: DataTypes.CHAR(1),
+        defaultValue: 'Y'
     }
 }, {
     tableName: 'Admins',

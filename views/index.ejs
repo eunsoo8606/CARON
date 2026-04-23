@@ -151,50 +151,49 @@
         </div>
 
         <div class="planner-grid">
-            <% const planners=[ { name: '박민기' , rank: '수석 팀장' , satisfied: '99.8%' , deliveries: '1,842' ,
-                tag: '법인/리스 전문' , img: '/images/man1.png' }, { name: '유장현' , rank: '책임 프로' , satisfied: '98.5%' ,
-                deliveries: '1,520' , tag: '장기렌트 전문' , img: '/images/man2.png' }, { name: '황호연' , rank: '시니어 파트너' ,
-                satisfied: '99.2%' , deliveries: '1,680' , tag: '친절/상세 상담' , img: '/images/man3.png' }, { name: '이준호' ,
-                rank: '전문 컨설턴트' , satisfied: '97.9%' , deliveries: '1,240' , tag: '합리적 견적 설계' , img: '/images/man4.png'
-                } ]; %>
-
+            <% if (planners && planners.length > 0) { %>
                 <% planners.forEach((planner, index)=> { %>
                     <div class="planner-card" id="planner-<%= index %>">
-                        <div class="planner-badge">Top <%= index + 1 %>
-                        </div>
+                        <div class="planner-badge">Top <%= index + 1 %></div>
                         <div class="planner-photo">
-                            <div class="photo-inner" style="background-image: url('<%= planner.img %>')"></div>
+                            <div class="photo-inner" style="background-image: url('<%= planner.getDataValue('profile_img') %>')"></div>
                         </div>
                         <div class="planner-info">
                             <div class="planner-meta">
                                 <span class="planner-tag">
-                                    <%= planner.tag %>
+                                    <%= planner.specialty || '신속/정확 상담' %>
                                 </span>
                                 <h4 class="planner-name">
                                     <%= planner.name %> <small>
-                                            <%= planner.rank %>
+                                            <%= planner.position || '플래너' %>
                                         </small>
                                 </h4>
+                                <% if (planner.intro) { %>
+                                    <p class="planner-intro"><%= planner.intro %></p>
+                                <% } %>
                             </div>
                             <div class="planner-stats">
                                 <div class="stat-item">
                                     <span class="stat-label">만족도</span>
                                     <span class="stat-value">
-                                        <%= planner.satisfied %>
+                                        <%= planner.satisfaction || '-' %>
                                     </span>
                                 </div>
                                 <div class="stat-divider"></div>
                                 <div class="stat-item">
                                     <span class="stat-label">출고</span>
                                     <span class="stat-value">
-                                        <%= planner.deliveries %>건
+                                        <%= planner.deliveries || '0' %>건
                                     </span>
                                 </div>
                             </div>
-                            <button type="button" class="planner-btn btn-planner-inquiry" data-planner-img="<%= planner.img %>" data-planner-name="<%= planner.name %>">이 플래너에게 상담받기</button>
+                            <button type="button" class="planner-btn btn-planner-inquiry" data-planner-img="<%= planner.getDataValue('profile_img') %>" data-planner-name="<%= planner.name %>">이 플래너에게 상담받기</button>
                         </div>
                     </div>
-                    <% }); %>
+                <% }); %>
+            <% } else { %>
+                <p style="grid-column: 1/-1; padding: 100px 0; color: #888; text-align: center;">등록된 플래너가 없습니다.</p>
+            <% } %>
         </div>
     </div>
 </section>

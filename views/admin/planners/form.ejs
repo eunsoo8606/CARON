@@ -1,0 +1,136 @@
+<!-- Planner Specific Assets -->
+<script src="/js/admin/planners.js?v=<%= Date.now() %>"></script>
+
+<div class="page-header d-flex-between">
+    <div>
+        <h2 class="page-title"><%= planner ? '플래너 정보 수정' : '신규 플래너 등록' %></h2>
+        <p class="page-subtitle">플래너의 계정 보안과 공개 프로필 정보를 상세하게 설정합니다.</p>
+    </div>
+    <a href="/console/planners" class="btn-cancel">
+        <i class="fas fa-arrow-left"></i> 목록으로 돌아가기
+    </a>
+</div>
+
+<form action="/console/planners/save" method="POST" class="admin-form" enctype="multipart/form-data">
+    <% if (planner) { %>
+        <input type="hidden" name="id" value="<%= planner.id %>">
+    <% } %>
+
+    <div class="form-grid">
+        <div class="form-left">
+            <!-- 계정 정보 카드 -->
+            <div class="content-card mb-4 border-magenta">
+                <h3 class="card-title"><i class="fas fa-user-shield"></i> 계정 보안 설정</h3>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>이름 (성함) <span class="required">*</span></label>
+                        <input type="text" name="name" class="form-control" value="<%= planner && planner.Admin ? planner.Admin.name : '' %>" required placeholder="예) 박민기">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>로그인 아이디 <span class="required">*</span></label>
+                        <input type="text" name="username" class="form-control" value="<%= planner && planner.Admin ? planner.Admin.username : '' %>" required placeholder="아이디 입력">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>비밀번호 
+                        <% if (planner) { %>
+                            <span style="font-weight:400; color:#999; margin-left:10px;">(변경 시에만 입력하세요)</span>
+                        <% } else { %>
+                            <span class="required">*</span>
+                        <% } %>
+                    </label>
+                    <input type="password" name="password" class="form-control" <%= planner ? '' : 'required' %> placeholder="강력한 비밀번호를 권장합니다.">
+                </div>
+                <div class="form-row" style="align-items: center; margin-top: 10px; padding-top: 15px; border-top: 1px solid #f0f0f0;">
+                    <div class="form-group flex-1" style="margin-bottom: 0;">
+                        <label style="margin-bottom: 0;">재직 상태 설정 <span id="status-text" style="margin-left: 10px; font-weight: 800; color: <%= (planner && planner.Admin && planner.Admin.use_yn === 'N') ? '#f44336' : '#4caf50' %>;"><%= (planner && planner.Admin && planner.Admin.use_yn === 'N') ? '퇴사' : '재직 중' %></span></label>
+                    </div>
+                    <label class="admin-switch">
+                        <input type="checkbox" name="use_yn" value="Y" <%= (!planner || (planner.Admin && planner.Admin.use_yn === 'Y')) ? 'checked' : '' %> onchange="const text = document.getElementById('status-text'); text.innerText = this.checked ? '재직 중' : '퇴사'; text.style.color = this.checked ? '#4caf50' : '#f44336';">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 프로필 정보 카드 -->
+            <div class="content-card mb-4">
+                <h3 class="card-title"><i class="fas fa-id-card"></i> 프로필 전문성 설정</h3>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>직위 / 직급</label>
+                        <input type="text" name="position" class="form-control" value="<%= planner ? planner.position : '' %>" placeholder="예) 수석 팀장">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>전문 분야 (태그)</label>
+                        <input type="text" name="specialty" class="form-control" value="<%= planner ? planner.specialty : '' %>" placeholder="예) 법인 리스 전문">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>자기소개 및 인사말</label>
+                    <textarea name="intro" class="form-control" style="height: 200px; line-height: 1.6;" placeholder="플래너의 전문성과 신뢰도를 보여줄 수 있는 매력적인 소개글을 작성해 주세요."><%= planner ? planner.intro : '' %></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-right">
+            <!-- 이미지 업로드 카드 -->
+            <div class="content-card mb-4">
+                <h3 class="card-title"><i class="fas fa-camera"></i> 프로필 이미지</h3>
+                <div class="image-upload-box">
+                    <input type="file" name="profile_img" id="profile_img" class="file-input" accept="image/*" onchange="previewImage(this)">
+                    <% if (planner && planner.getDataValue('profile_img') && planner.getDataValue('profile_img') !== '/images/default_user.png') { %>
+                        <img src="<%= planner.getDataValue('profile_img') %>" id="preview" class="preview-img">
+                    <% } else { %>
+                        <img src="" id="preview" class="preview-img" style="display: none;">
+                        <div class="upload-placeholder" id="placeholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>클릭하여 이미지 선택</p>
+                            <span>권장: 500 x 500px</span>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- 성과 지표 카드 -->
+            <div class="content-card mb-4">
+                <h3 class="card-title"><i class="fas fa-chart-pie"></i> 활동 및 성과 지표</h3>
+                <div class="form-group">
+                    <label>고객 만족도</label>
+                    <input type="text" name="satisfaction" class="form-control" value="<%= planner ? planner.satisfaction : '' %>" placeholder="예) 99.8%">
+                </div>
+                <div class="form-group">
+                    <label>누적 출고 건수</label>
+                    <input type="text" name="deliveries" class="form-control" value="<%= planner ? planner.deliveries : '' %>" placeholder="예) 1,842">
+                </div>
+                <div class="form-group">
+                    <label>노출 우선순위 (숫자)</label>
+                    <input type="number" name="priority" class="form-control" value="<%= planner ? planner.priority : 0 %>">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-submit btn-magenta">
+            <i class="fas fa-save"></i> 설정 및 정보 저장하기
+        </button>
+        <a href="/console/planners" class="btn-cancel">취소</a>
+    </div>
+</form>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview').src = e.target.result;
+            document.getElementById('preview').style.display = 'block';
+            if (document.getElementById('placeholder')) {
+                document.getElementById('placeholder').style.display = 'none';
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>

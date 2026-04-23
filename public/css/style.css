@@ -842,7 +842,20 @@ img { max-width: 100%; display: block; }
     font-size: 20px;
     font-weight: 800;
     color: var(--text-main);
-    margin-bottom: 25px;
+    margin-bottom: 15px;
+}
+
+.planner-intro {
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.5;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 39px;
+    text-align: center;
 }
 
 .planner-name small {
