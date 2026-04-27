@@ -139,8 +139,11 @@ app.get('/', async (req, res) => {
         const planners = await Planner.findAll({
             include: [{
                 model: Admin,
-                attributes: ['name', 'use_yn'],
-                where: { use_yn: 'Y' }
+                attributes: ['name', 'use_yn', 'role'],
+                where: { 
+                    use_yn: 'Y',
+                    role: '플래너'
+                }
             }],
             order: [['deliveries', 'DESC'], ['created_at', 'DESC']]
         });
@@ -812,17 +815,19 @@ app.post('/console/planners/save', authAdmin, upload.single('profile_img'), asyn
         const { id, username, password, name, position, specialty, satisfaction, deliveries, intro, priority, use_yn } = req.body;
         const currentUseYn = use_yn === 'Y' ? 'Y' : 'N';
         
+        let savedId = id;
+        
         let adminId;
         if (id) {
             // 수정 모드
             const planner = await Planner.findByPk(id);
+            if (!planner) throw new Error('플래너를 찾을 수 없습니다.');
             adminId = planner.admin_id;
 
             const adminUpdateData = { name, use_yn: currentUseYn };
             if (password && password.trim() !== '') {
                 adminUpdateData.password = await bcrypt.hash(password, 10);
             }
-            // username은 보통 변경하지 않으나 필요시 추가 가능
             if (username) adminUpdateData.username = username;
 
             await Admin.update(adminUpdateData, { where: { id: adminId }, transaction: t });
@@ -842,7 +847,6 @@ app.post('/console/planners/save', authAdmin, upload.single('profile_img'), asyn
                 throw new Error('아이디, 비밀번호, 이름은 필수입니다.');
             }
 
-            // 1. Admin 계정 생성
             const hashedPassword = await bcrypt.hash(password, 10);
             const newAdmin = await Admin.create({
                 username,
@@ -854,7 +858,6 @@ app.post('/console/planners/save', authAdmin, upload.single('profile_img'), asyn
             
             adminId = newAdmin.id;
 
-            // 2. Planner 상세 정보 생성
             const newPlanner = await Planner.create({
                 admin_id: adminId,
                 position,
@@ -865,10 +868,10 @@ app.post('/console/planners/save', authAdmin, upload.single('profile_img'), asyn
                 priority: parseInt(priority) || 0
             }, { transaction: t });
             
-            id = newPlanner.id; // 이미지 업로드를 위해 ID 할당
+            savedId = newPlanner.id;
         }
 
-        // 이미지 업로드 처리 (트랜잭션 커밋 후에 해도 되지만 안전하게 포함)
+        // 이미지 업로드 처리
         if (req.file) {
             const blob = await put(`planners/${Date.now()}_${req.file.originalname}`, req.file.buffer, {
                 access: 'public',
@@ -880,7 +883,7 @@ app.post('/console/planners/save', authAdmin, upload.single('profile_img'), asyn
                 file_size: req.file.size,
                 mime_type: req.file.mimetype,
                 ref_type: 'planner',
-                ref_id: id || planner.id
+                ref_id: savedId
             }, { transaction: t });
         }
 
