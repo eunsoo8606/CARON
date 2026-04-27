@@ -164,7 +164,7 @@
                                     <%= planner.specialty || '신속/정확 상담' %>
                                 </span>
                                 <h4 class="planner-name">
-                                    <%= planner.name %> <small>
+                                    <%= planner.getDataValue('name') %> <small>
                                             <%= planner.position || '플래너' %>
                                         </small>
                                 </h4>
@@ -187,7 +187,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <button type="button" class="planner-btn btn-planner-inquiry" data-planner-img="<%= planner.getDataValue('profile_img') %>" data-planner-name="<%= planner.name %>">이 플래너에게 상담받기</button>
+                            <button type="button" class="planner-btn btn-planner-inquiry" data-planner-img="<%= planner.getDataValue('profile_img') %>" data-planner-name="<%= planner.getDataValue('name') %>">이 플래너에게 상담받기</button>
                         </div>
                     </div>
                 <% }); %>

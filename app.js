@@ -755,8 +755,13 @@ app.post('/console/cars/:id/delete', authAdmin, async (req, res) => {
 app.get('/console/planners', authAdmin, async (req, res) => {
     try {
         const planners = await Planner.findAll({
-            include: [{ model: Admin, attributes: ['name'] }],
-            order: [['priority', 'DESC'], ['created_at', 'DESC']]
+            include: [{ 
+                model: Admin, 
+                attributes: ['name', 'role'],
+                where: { role: '플래너' },
+                required: true // Admin 정보가 있는 Planner만 노출
+            }],
+            order: [['deliveries', 'DESC'], ['created_at', 'DESC']]
         });
 
         for (let p of planners) {
