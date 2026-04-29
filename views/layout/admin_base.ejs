@@ -5,29 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 콘솔 - CARON</title>
     <link rel="stylesheet" href="/css/admin.css">
-    <script>
-        // 관리자 공통 삭제 함수
-        window.handleCarDelete = function(btn, id) {
-            if (!confirm('정말로 이 차량을 삭제하시겠습니까?')) return;
-            
-            fetch(`/console/cars/${id}/delete`, { 
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(res => {
-                if(res.ok) {
-                    alert('삭제되었습니다.');
-                    location.reload();
-                } else {
-                    alert('삭제 실패');
-                }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                alert('오류가 발생했습니다.');
-            });
-        };
-    </script>
+    <script src="/js/admin-common.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="admin-body">

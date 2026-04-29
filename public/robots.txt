@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /console/
+Disallow: /api/
+
+Sitemap: https://caron-opal.vercel.app/sitemap.xml

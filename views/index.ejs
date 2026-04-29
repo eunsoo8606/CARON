@@ -1,4 +1,5 @@
 <div class="container">
+    <h1 class="sr-only">신차 장기렌트·리스 전문 플랫폼 CARON</h1>
     <!-- Hero Section - Contained and Rounded -->
     <section class="hero">
         <div class="swiper hero-swiper">
@@ -7,12 +8,13 @@
                     <% banners.forEach(banner => { %>
                         <div class="swiper-slide" 
                              style="background-image: url('/api/image/<%= banner.image_id %>'); cursor: <%= banner.link_url ? 'pointer' : 'default' %>"
-                             onclick="<%= banner.link_url ? `location.href='${banner.link_url}'` : '' %>">
+                             onclick="<%= banner.link_url ? `location.href='${banner.link_url}'` : '' %>"
+                             aria-label="<%= banner.title %>">
                         </div>
                     <% }); %>
                 <% } else { %>
-                    <div class="swiper-slide" style="background-image: url('/images/banner_ex1.png');"></div>
-                    <div class="swiper-slide" style="background-image: url('/images/banner_ex2.png');"></div>
+                    <div class="swiper-slide" style="background-image: url('/images/banner_ex1.webp');" aria-label="메인 배너 1"></div>
+                    <div class="swiper-slide" style="background-image: url('/images/banner_ex2.webp');" aria-label="메인 배너 2"></div>
                 <% } %>
             </div>
             <div class="swiper-pagination"></div>
@@ -24,15 +26,15 @@
 <section class="vehicle-section">
     <div class="container">
         <div class="section-header">
-            <h3 class="section-title">4월 인기 <span>TOP 10</span></h3>
+            <h2 class="section-title">4월 인기 <span>TOP 10</span></h2>
             <a href="/car/search" class="view-more">더보기</a>
         </div>
 
-        <% const vehicles=[ { name: '제네시스 G80' , price: '월 78만원~' , img: '/images/genesis.png' , tag: '인기' }, {
-            name: '현대 그랜저' , price: '월 52만원~' , img: '/images/granger.png' , tag: '즉시출고' }, { name: '기아 EV6' ,
-            price: '월 65만원~' , img: '/images/ev6.png' , tag: '전기차' }, { name: 'BMW 5시리즈' , price: '월 92만원~' ,
+        <% const vehicles=[ { name: '제네시스 G80' , price: '월 78만원~' , img: '/images/genesis.webp' , tag: '인기' }, {
+            name: '현대 그랜저' , price: '월 52만원~' , img: '/images/granger.webp' , tag: '즉시출고' }, { name: '기아 EV6' ,
+            price: '월 65만원~' , img: '/images/ev6.webp' , tag: '전기차' }, { name: 'BMW 5시리즈' , price: '월 92만원~' ,
             img: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070' , tag: '수입차' }, {
-            name: '기아 카니발' , price: '월 58만원~' , img: '/images/canival.png' , tag: '패밀리카' }, { name: '제네시스 GV80' ,
+            name: '기아 카니발' , price: '월 58만원~' , img: '/images/canival.webp' , tag: '패밀리카' }, { name: '제네시스 GV80' ,
             price: '월 88만원~' , img: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2070' ,
             tag: 'SUV' }, { name: '벤츠 E클래스' , price: '월 105만원~' ,
             img: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=2070' , tag: 'Best' }, {
@@ -40,20 +42,21 @@
             img: 'https://images.unsplash.com/photo-1606148332571-0f666b607ce1?q=80&w=2070' , tag: '할인' }, {
             name: '테슬라 Model Y' , price: '월 72만원~' ,
             img: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2070' , tag: '전기차' }, {
-            name: '현대 싼타페' , price: '월 48만원~' , img: '/images/ssantafe.png' , tag: '가성비' } ]; %>
+            name: '현대 싼타페' , price: '월 48만원~' , img: '/images/ssantafe.webp' , tag: '가성비' } ]; %>
             <div class="swiper vehicle-swiper">
                 <div class="swiper-wrapper">
                     <% vehicles.forEach(car=> { %>
                         <div class="swiper-slide vehicle-card">
-                            <div class="card-img" style="background-image: url('<%= car.img %>')">
+                            <div class="card-img">
+                                <img src="<%= car.img %>" alt="<%= car.name %> 장기렌트 리스">
                                 <span class="badge">
                                     <%= car.tag %>
                                 </span>
                             </div>
                             <div class="card-body">
-                                <h4 class="car-name">
+                                <h3 class="car-name">
                                     <%= car.name %>
-                                </h4>
+                                </h3>
                                 <p class="car-price">
                                     <%= car.price %>
                                 </p>
@@ -69,8 +72,11 @@
 <section class="youtube-section">
     <div class="container">
         <div class="section-header">
-            <h3 class="section-title">오토플랜 <span>유튜브</span></h3>
-            <p class="section-subtitle">다양한 차종의 생생한 출고 후기와 리뷰를 감상하세요.</p>
+            <div class="title-group">
+                <span class="section-tag">CARON VIDEO</span>
+                <h3 class="section-title">CARON <span>YouTube</span></h3>
+                <p class="section-subtitle">다양한 차종의 생생한 출고 후기와 리뷰를 감상하세요.</p>
+            </div>
         </div>
 
         <div class="youtube-player-layout">
@@ -119,7 +125,7 @@
                                     <p class="item-title">
                                         <%= video.title %>
                                     </p>
-                                    <p class="item-channel">KS오토플랜</p>
+                                    <p class="item-channel">CARON</p>
                                 </div>
                             </div>
                         <% }); %>
@@ -130,7 +136,7 @@
                             </div>
                             <div class="item-info">
                                 <p class="item-title"><%= youtubeVideos[0].title %></p>
-                                <p class="item-channel">KS오토플랜</p>
+                                <p class="item-channel">CARON</p>
                             </div>
                         </div>
                     <% } else { %>
@@ -147,7 +153,7 @@
     <div class="container">
         <div class="section-header">
             <h3 class="section-title">이달의 <span>정예 플래너</span></h3>
-            <p class="section-subtitle">KS오토플랜의 검증된 전문가들과 함께 가장 합리적인 견적을 만나보세요.</p>
+            <p class="section-subtitle">CARON의 검증된 전문가들과 함께 가장 합리적인 견적을 만나보세요.</p>
         </div>
 
         <div class="planner-grid">
