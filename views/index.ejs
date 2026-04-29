@@ -4,18 +4,20 @@
     <section class="hero">
         <div class="swiper hero-swiper">
             <div class="swiper-wrapper">
-                <% if (banners && banners.length > 0) { %>
-                    <% banners.forEach(banner => { %>
-                        <div class="swiper-slide" 
-                             style="background-image: url('/api/image/<%= banner.image_id %>'); cursor: <%= banner.link_url ? 'pointer' : 'default' %>"
-                             onclick="<%= banner.link_url ? `location.href='${banner.link_url}'` : '' %>"
-                             aria-label="<%= banner.title %>">
+                <% if (banners && banners.length> 0) { %>
+                    <% banners.forEach(banner=> { %>
+                        <div class="swiper-slide"
+                            style="background-image: url('/api/image/<%= banner.image_id %>'); cursor: <%= banner.link_url ? 'pointer' : 'default' %>"
+                            onclick="<%= banner.link_url ? `location.href='${banner.link_url}'` : '' %>"
+                            aria-label="<%= banner.title %>">
                         </div>
-                    <% }); %>
-                <% } else { %>
-                    <div class="swiper-slide" style="background-image: url('/images/banner_ex1.webp');" aria-label="메인 배너 1"></div>
-                    <div class="swiper-slide" style="background-image: url('/images/banner_ex2.webp');" aria-label="메인 배너 2"></div>
-                <% } %>
+                        <% }); %>
+                            <% } else { %>
+                                <div class="swiper-slide" style="background-image: url('/images/banner_ex1.webp');"
+                                    aria-label="메인 배너 1"></div>
+                                <div class="swiper-slide" style="background-image: url('/images/banner_ex2.webp');"
+                                    aria-label="메인 배너 2"></div>
+                                <% } %>
             </div>
             <div class="swiper-pagination"></div>
         </div>
@@ -82,7 +84,7 @@
         <div class="youtube-player-layout">
             <!-- Main Player Area -->
             <div class="player-main" id="mainPlayer">
-                <% if (youtubeVideos && youtubeVideos.length > 0) { %>
+                <% if (youtubeVideos && youtubeVideos.length> 0) { %>
                     <div class="main-video-card" data-video-id="<%= youtubeVideos[0].video_id %>">
                         <div class="video-thumb"
                             style="background-image: url('https://img.youtube.com/vi/<%= youtubeVideos[0].video_id %>/maxresdefault.jpg')">
@@ -99,22 +101,24 @@
                             </h4>
                         </div>
                     </div>
-                <% } else { %>
-                    <div class="main-video-card">
-                        <div class="video-thumb" style="background: #111; display: flex; align-items: center; justify-content: center; color: #555;">
-                            등록된 영상이 없습니다.
+                    <% } else { %>
+                        <div class="main-video-card">
+                            <div class="video-thumb"
+                                style="background: #111; display: flex; align-items: center; justify-content: center; color: #555;">
+                                등록된 영상이 없습니다.
+                            </div>
                         </div>
-                    </div>
-                <% } %>
+                        <% } %>
             </div>
 
             <!-- Playlist Area -->
             <div class="player-sidebar">
                 <div class="playlist-header">다음 영상</div>
                 <div class="playlist-items">
-                    <% if (youtubeVideos && youtubeVideos.length > 1) { %>
+                    <% if (youtubeVideos && youtubeVideos.length> 1) { %>
                         <% youtubeVideos.forEach((video, index)=> { %>
-                            <div class="playlist-item <%= index === 0 ? 'active' : '' %>" data-video-id="<%= video.video_id %>">
+                            <div class="playlist-item <%= index === 0 ? 'active' : '' %>"
+                                data-video-id="<%= video.video_id %>">
                                 <div class="item-thumb"
                                     style="background-image: url('https://img.youtube.com/vi/<%= video.video_id %>/mqdefault.jpg')">
                                     <span class="item-duration">
@@ -125,23 +129,28 @@
                                     <p class="item-title">
                                         <%= video.title %>
                                     </p>
-                                    <p class="item-channel">CARON</p>
+                                    <p class="item-channel">KS오토플랜</p>
                                 </div>
                             </div>
-                        <% }); %>
-                    <% } else if (youtubeVideos && youtubeVideos.length === 1) { %>
-                        <div class="playlist-item active" data-video-id="<%= youtubeVideos[0].video_id %>">
-                            <div class="item-thumb" style="background-image: url('https://img.youtube.com/vi/<%= youtubeVideos[0].video_id %>/mqdefault.jpg')">
-                                <span class="item-duration"><%= youtubeVideos[0].duration %></span>
-                            </div>
-                            <div class="item-info">
-                                <p class="item-title"><%= youtubeVideos[0].title %></p>
-                                <p class="item-channel">CARON</p>
-                            </div>
-                        </div>
-                    <% } else { %>
-                        <p style="padding: 20px; color: #888; text-align: center;">영상을 등록해주세요.</p>
-                    <% } %>
+                            <% }); %>
+                                <% } else if (youtubeVideos && youtubeVideos.length===1) { %>
+                                    <div class="playlist-item active" data-video-id="<%= youtubeVideos[0].video_id %>">
+                                        <div class="item-thumb"
+                                            style="background-image: url('https://img.youtube.com/vi/<%= youtubeVideos[0].video_id %>/mqdefault.jpg')">
+                                            <span class="item-duration">
+                                                <%= youtubeVideos[0].duration %>
+                                            </span>
+                                        </div>
+                                        <div class="item-info">
+                                            <p class="item-title">
+                                                <%= youtubeVideos[0].title %>
+                                            </p>
+                                            <p class="item-channel">KS오토플랜</p>
+                                        </div>
+                                    </div>
+                                    <% } else { %>
+                                        <p style="padding: 20px; color: #888; text-align: center;">영상을 등록해주세요.</p>
+                                        <% } %>
                 </div>
             </div>
         </div>
@@ -153,16 +162,18 @@
     <div class="container">
         <div class="section-header">
             <h3 class="section-title">이달의 <span>정예 플래너</span></h3>
-            <p class="section-subtitle">CARON의 검증된 전문가들과 함께 가장 합리적인 견적을 만나보세요.</p>
+            <p class="section-subtitle">KS오토플랜의 검증된 전문가들과 함께 가장 합리적인 견적을 만나보세요.</p>
         </div>
 
         <div class="planner-grid">
-            <% if (planners && planners.length > 0) { %>
+            <% if (planners && planners.length> 0) { %>
                 <% planners.forEach((planner, index)=> { %>
                     <div class="planner-card" id="planner-<%= index %>">
-                        <div class="planner-badge">Top <%= index + 1 %></div>
+                        <div class="planner-badge">Top <%= index + 1 %>
+                        </div>
                         <div class="planner-photo">
-                            <div class="photo-inner" style="background-image: url('<%= planner.getDataValue('profile_img') %>')"></div>
+                            <div class="photo-inner"
+                                style="background-image: url('<%= planner.getDataValue('profile_img') %>')"></div>
                         </div>
                         <div class="planner-info">
                             <div class="planner-meta">
@@ -175,8 +186,10 @@
                                         </small>
                                 </h4>
                                 <% if (planner.intro) { %>
-                                    <p class="planner-intro"><%= planner.intro %></p>
-                                <% } %>
+                                    <p class="planner-intro">
+                                        <%= planner.intro %>
+                                    </p>
+                                    <% } %>
                             </div>
                             <div class="planner-stats">
                                 <div class="stat-item">
@@ -193,13 +206,16 @@
                                     </span>
                                 </div>
                             </div>
-                            <button type="button" class="planner-btn btn-planner-inquiry" data-planner-img="<%= planner.getDataValue('profile_img') %>" data-planner-name="<%= planner.getDataValue('name') %>">이 플래너에게 상담받기</button>
+                            <button type="button" class="planner-btn btn-planner-inquiry"
+                                data-planner-img="<%= planner.getDataValue('profile_img') %>"
+                                data-planner-name="<%= planner.getDataValue('name') %>">이 플래너에게 상담받기</button>
                         </div>
                     </div>
-                <% }); %>
-            <% } else { %>
-                <p style="grid-column: 1/-1; padding: 100px 0; color: #888; text-align: center;">등록된 플래너가 없습니다.</p>
-            <% } %>
+                    <% }); %>
+                        <% } else { %>
+                            <p style="grid-column: 1/-1; padding: 100px 0; color: #888; text-align: center;">등록된 플래너가
+                                없습니다.</p>
+                            <% } %>
         </div>
     </div>
 </section>
