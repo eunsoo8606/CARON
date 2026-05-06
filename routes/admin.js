@@ -134,42 +134,54 @@ router.get('/banners/:id', authAdmin, async (req, res) => {
     }
 });
 
-router.post('/banners/save', authAdmin, upload.single('thumbnail'), async (req, res) => {
+router.post('/banners/save', authAdmin, upload.any(), async (req, res) => {
     const { id, title, link_url, order_index, is_visible } = req.body;
     try {
-        let image_id = null;
-        if (req.file) {
-            // WebP 변환
-            const webpBuffer = await sharp(req.file.buffer).webp({ quality: 80 }).toBuffer();
-            const fileName = `banners/${Date.now()}.webp`;
+        const getFile = (fieldName) => {
+            return req.files.find(f => f.fieldname === fieldName);
+        };
+
+        const processUpload = async (file, type) => {
+            if (!file) return null;
+            const webpBuffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
+            const fileName = `banners/${Date.now()}_${type}.webp`;
             const blob = await put(fileName, webpBuffer, { access: 'public' });
             
             const newUpload = await Upload.create({
-                original_name: req.file.originalname,
+                original_name: file.originalname,
                 saved_name: blob.pathname,
                 file_path: blob.url,
                 file_size: webpBuffer.length,
                 mime_type: 'image/webp',
                 ref_type: 'banner'
             });
-            image_id = newUpload.id;
-        }
+            return newUpload.id;
+        };
+
+        const pcFile = getFile('thumbnail');
+        const moFile = getFile('mobile_thumbnail');
+
+        const image_id = pcFile ? await processUpload(pcFile, 'pc') : null;
+        const mobile_image_id = moFile ? await processUpload(moFile, 'mobile') : null;
 
         const bannerData = {
             title, link_url,
             order_index: parseInt(order_index) || 0,
             is_visible: is_visible === '1' ? 1 : 0
         };
+        
         if (image_id) bannerData.image_id = image_id;
+        if (mobile_image_id) bannerData.mobile_image_id = mobile_image_id;
 
         if (id) {
             await Banner.update(bannerData, { where: { id } });
         } else {
-            if (!image_id) return res.send('<script>alert("이미지는 필수입니다."); history.back();</script>');
+            if (!image_id) return res.send('<script>alert("PC 이미지는 필수입니다."); history.back();</script>');
             await Banner.create(bannerData);
         }
         res.redirect('/console/banners');
     } catch (err) {
+        console.error(err);
         res.status(500).send('Error saving banner');
     }
 });

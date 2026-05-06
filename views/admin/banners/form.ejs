@@ -35,20 +35,33 @@
 
         <div class="form-column">
             <div class="content-card">
-                <h3 class="card-title"><i class="fas fa-image"></i> 배너 이미지 <span class="required">*</span></h3>
-                <!-- label로 감싸면 자바스크립트 클릭 이벤트 없이도 input이 트리거됩니다 -->
-                <label for="imageInput" class="image-upload-box" id="imagePreviewBox" style="aspect-ratio: 16/6; cursor: pointer; display: flex;">
+                <h3 class="card-title"><i class="fas fa-desktop"></i> PC 배너 이미지 <span class="required">*</span></h3>
+                <label for="imageInput" class="image-upload-box" id="imagePreviewBox" style="aspect-ratio: 16/5; cursor: pointer; display: flex;">
                     <% if (banner && banner.image_id) { %>
                         <img src="/api/image/<%= banner.image_id %>" class="preview-img" style="object-fit: cover;">
                     <% } else { %>
                         <div class="upload-placeholder">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <p>클릭하여 배너 이미지 업로드</p>
+                            <p>클릭하여 PC용 이미지 업로드</p>
                         </div>
                     <% } %>
                 </label>
                 <input type="file" name="thumbnail" id="imageInput" accept="image/*" style="display: none;" <%= banner ? '' : 'required' %>>
-                <p class="form-help">권장 사이즈: 1920x600px (가로가 긴 와이드 이미지)</p>
+                <p class="form-help mb-4">권장 사이즈: 1920x600px (가로가 긴 와이드 이미지)</p>
+
+                <h3 class="card-title"><i class="fas fa-mobile-alt"></i> 모바일 배너 이미지</h3>
+                <label for="mobileImageInput" class="image-upload-box" id="mobilePreviewBox" style="aspect-ratio: 1080 / 450; cursor: pointer; display: flex;">
+                    <% if (banner && banner.mobile_image_id) { %>
+                        <img src="/api/image/<%= banner.mobile_image_id %>" class="preview-img" style="object-fit: cover;">
+                    <% } else { %>
+                        <div class="upload-placeholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>클릭하여 모바일용 업로드</p>
+                        </div>
+                    <% } %>
+                </label>
+                <input type="file" name="mobile_thumbnail" id="mobileImageInput" accept="image/*" style="display: none;">
+                <p class="form-help">권장 사이즈: 1080x450px (와이드형)</p>
 
                 <div class="switch-container mt-4">
                     <div class="switch-label">

@@ -28,12 +28,21 @@
                         <tr>
                             <td><%= banner.order_index %></td>
                             <td>
-                                <div class="car-thumb" style="width: 180px; height: 60px;">
-                                    <% if (banner.image_id) { %>
-                                        <img src="/api/image/<%= banner.image_id %>" alt="banner" style="object-fit: cover;">
-                                    <% } else { %>
-                                        <div class="no-img">No Img</div>
-                                    <% } %>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div class="car-thumb" style="width: 120px; height: 45px; border: 1px solid #eee;" title="PC용 배너">
+                                        <% if (banner.image_id) { %>
+                                            <img src="/api/image/<%= banner.image_id %>" alt="PC banner" style="object-fit: cover;">
+                                        <% } else { %>
+                                            <div class="no-img">PC 미등록</div>
+                                        <% } %>
+                                    </div>
+                                    <div class="car-thumb" style="width: 40px; height: 40px; border: 1px solid #eee;" title="모바일용 배너">
+                                        <% if (banner.mobile_image_id) { %>
+                                            <img src="/api/image/<%= banner.mobile_image_id %>" alt="MO banner" style="object-fit: cover;">
+                                        <% } else { %>
+                                            <div class="no-img" style="font-size: 9px; line-height: 1;">MO 미등록</div>
+                                        <% } %>
+                                    </div>
                                 </div>
                             </td>
                             <td class="text-left">

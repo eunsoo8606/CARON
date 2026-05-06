@@ -39,12 +39,44 @@ router.get('/', async (req, res) => {
             p.setDataValue('profile_img', profileImg ? `/api/image/${profileImg.id}` : '/images/default_user.webp');
             p.setDataValue('name', p.Admin ? p.Admin.name : '이름없음');
         }
+        // 인기 TOP 10 차량 조회
+        const top10Cars = await Car.findAll({
+            where: { is_top10: 1, is_visible: 1 },
+            order: [['created_at', 'DESC']],
+            limit: 10
+        });
+
+        // 오늘의 핫딜 차량 조회
+        const hotCars = await Car.findAll({
+            where: { is_hot: 1, is_visible: 1 },
+            order: [['updated_at', 'DESC']],
+            limit: 4
+        });
+
+        // 제휴사 로고 조회
+        const fs = require('fs');
+        const path = require('path');
+        const affiliateDir = path.join(__dirname, '../public/images/affiliate');
+        let affiliates = [];
+        try {
+            if (fs.existsSync(affiliateDir)) {
+                affiliates = fs.readdirSync(affiliateDir)
+                    .filter(file => file.endsWith('.webp'))
+                    .map(file => `/images/affiliate/${file}`);
+            }
+        } catch (e) {
+            console.error('Affiliate Dir Read Error:', e);
+        }
+
         res.render('index', {
             title: '신차장기렌트·리스 전문 - CARON',
             description: '신차 장기렌트, 오토리스, 리스/렌트 승계 전문 플랫폼 CARON. 최적의 모빌리티 솔루션을 제안합니다.',
             banners,
             youtubeVideos,
-            planners
+            planners,
+            top10Cars,
+            hotCars,
+            affiliates
         });
     } catch (err) {
         console.error('Main Page Load Error:', err);
@@ -53,7 +85,10 @@ router.get('/', async (req, res) => {
             description: '신차 장기렌트, 오토리스 전문 CARON입니다.',
             banners: [],
             youtubeVideos: [],
-            planners: []
+            planners: [],
+            top10Cars: [],
+            hotCars: [],
+            affiliates: []
         });
     }
 });

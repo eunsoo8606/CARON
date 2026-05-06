@@ -6,8 +6,8 @@
             <div class="swiper-wrapper">
                 <% if (banners && banners.length> 0) { %>
                     <% banners.forEach(banner=> { %>
-                        <div class="swiper-slide"
-                            style="background-image: url('/api/image/<%= banner.image_id %>'); cursor: <%= banner.link_url ? 'pointer' : 'default' %>"
+                        <div class="swiper-slide banner-slide"
+                            style="--pc-bg: url('/api/image/<%= banner.image_id %>'); --mo-bg: url('/api/image/<%= banner.mobile_image_id || banner.image_id %>'); cursor: <%= banner.link_url ? 'pointer' : 'default' %>"
                             onclick="<%= banner.link_url ? `location.href='${banner.link_url}'` : '' %>"
                             aria-label="<%= banner.title %>">
                         </div>
@@ -32,46 +32,179 @@
             <a href="/car/search" class="view-more">더보기</a>
         </div>
 
-        <% const vehicles=[ { name: '제네시스 G80' , price: '월 78만원~' , img: '/images/genesis.webp' , tag: '인기' }, {
-            name: '현대 그랜저' , price: '월 52만원~' , img: '/images/granger.webp' , tag: '즉시출고' }, { name: '기아 EV6' ,
-            price: '월 65만원~' , img: '/images/ev6.webp' , tag: '전기차' }, { name: 'BMW 5시리즈' , price: '월 92만원~' ,
-            img: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070' , tag: '수입차' }, {
-            name: '기아 카니발' , price: '월 58만원~' , img: '/images/canival.webp' , tag: '패밀리카' }, { name: '제네시스 GV80' ,
-            price: '월 88만원~' , img: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2070' ,
-            tag: 'SUV' }, { name: '벤츠 E클래스' , price: '월 105만원~' ,
-            img: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=2070' , tag: 'Best' }, {
-            name: '아우디 A6' , price: '월 85만원~' ,
-            img: 'https://images.unsplash.com/photo-1606148332571-0f666b607ce1?q=80&w=2070' , tag: '할인' }, {
-            name: '테슬라 Model Y' , price: '월 72만원~' ,
-            img: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?q=80&w=2070' , tag: '전기차' }, {
-            name: '현대 싼타페' , price: '월 48만원~' , img: '/images/ssantafe.webp' , tag: '가성비' } ]; %>
             <div class="swiper vehicle-swiper">
                 <div class="swiper-wrapper">
-                    <% vehicles.forEach(car=> { %>
-                        <div class="swiper-slide vehicle-card">
-                            <div class="card-img">
-                                <img src="<%= car.img %>" alt="<%= car.name %> 장기렌트 리스">
-                                <span class="badge">
-                                    <%= car.tag %>
-                                </span>
+                    <% if (top10Cars && top10Cars.length > 0) { %>
+                        <% top10Cars.forEach(car=> { %>
+                            <div class="swiper-slide vehicle-card">
+                                <div class="card-img">
+                                    <% if (car.thumbnail_id) { %>
+                                        <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %> 장기렌트 리스">
+                                    <% } else { %>
+                                        <img src="/images/default_car.webp" alt="이미지 준비중">
+                                    <% } %>
+                                    <% if (car.is_hot) { %>
+                                        <span class="badge">HOT</span>
+                                    <% } else if (car.is_fast_ship) { %>
+                                        <span class="badge">즉시출고</span>
+                                    <% } %>
+                                </div>
+                                <div class="card-body">
+                                    <h3 class="car-name">
+                                        [<%= car.brand %>] <%= car.name_ko %>
+                                    </h3>
+                                    <p class="car-price">
+                                        월 <%= car.rent_fee ? car.rent_fee.toLocaleString() : '0' %>원~
+                                    </p>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <h3 class="car-name">
-                                    <%= car.name %>
-                                </h3>
-                                <p class="car-price">
-                                    <%= car.price %>
-                                </p>
-                            </div>
-                        </div>
                         <% }); %>
+                    <% } else { %>
+                        <p class="empty-msg" style="grid-column: 1/-1; padding: 50px 0; text-align: center; color: #888; width: 100%;">등록된 인기 차량이 없습니다.</p>
+                    <% } %>
                 </div>
             </div>
     </div>
 </section>
 
+<!-- Today's Hot Deal Section -->
+<section class="hot-deal-section">
+    <div class="container">
+        <div class="hot-deal-header">
+            <div class="title-group">
+                <span class="deal-badge">LIMITED</span>
+                <h2 class="section-title">오늘의 <span>핫딜</span></h2>
+                <p class="section-subtitle">오늘만 이 가격! 한정 수량 특가 차량을 만나보세요.</p>
+            </div>
+            <div class="timer-box">
+                <span class="timer-label">남은 시간</span>
+                <div id="hotDealTimer" class="timer-display">23:59:59</div>
+            </div>
+        </div>
+
+        <div class="hot-deal-grid">
+            <% if (hotCars && hotCars.length > 0) { %>
+                <% hotCars.forEach(car => { %>
+                    <div class="hot-deal-card">
+                        <div class="card-img">
+                            <% if (car.thumbnail_id) { %>
+                                <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %> 핫딜">
+                            <% } else { %>
+                                <img src="/images/default_car.webp" alt="이미지 준비중">
+                            <% } %>
+                        </div>
+                        <div class="card-info">
+                            <span class="car-brand"><%= car.brand %></span>
+                            <h3 class="car-name"><%= car.name_ko %></h3>
+                            <div class="price-group">
+                                <span class="rent-label">월 렌트료</span>
+                                <div class="price-box">
+                                    <span class="price">월 <%= car.rent_fee ? car.rent_fee.toLocaleString() : '0' %>원~</span>
+                                </div>
+                            </div>
+                            <button class="btn-deal-inquiry" onclick="location.href='/car/search?q=<%= encodeURIComponent(car.name_ko) %>'">견적 확인하기</button>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="empty-deal" style="grid-column: 1/-1; text-align: center; padding: 60px 0; background: #f9f9f9; border-radius: 12px;">
+                    <p style="color: #888;">현재 진행 중인 핫딜 차량이 없습니다.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<script>
+// Today's Hot Deal Countdown Timer
+function updateTimer() {
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0); // Next midnight
+
+    const diff = midnight - now;
+    
+    if (diff <= 0) {
+        document.getElementById('hotDealTimer').innerText = "00:00:00";
+        return;
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+
+    const timerEl = document.getElementById('hotDealTimer');
+    if (timerEl) {
+        timerEl.innerText = `${hours}:${minutes}:${seconds}`;
+    }
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+</script>
+
+<!-- Partners Section -->
+<section class="partners-section">
+    <div class="container">
+        <div class="section-header">
+            <h3 class="section-title">CARON <span>금융 파트너</span></h3>
+            <p class="section-subtitle">대한민국 대표 금융사들과 함께 가장 유리한 조건을 비교해 드립니다.</p>
+        </div>
+        
+        <div class="swiper partners-swiper">
+            <div class="swiper-wrapper">
+                <% if (affiliates && affiliates.length > 0) { %>
+                    <% affiliates.forEach(logo => { %>
+                        <div class="swiper-slide partner-item">
+                            <img src="<%= logo %>" alt="금융 파트너사" loading="lazy">
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="swiper-slide">
+                        <p class="empty-msg">파트너사 정보를 불러오는 중입니다.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new Swiper('.partners-swiper', {
+        slidesPerView: 2,
+        grid: {
+            rows: 2,
+            fill: 'row'
+        },
+        spaceBetween: 10,
+        autoplay: {
+            delay: 2500,
+            disableOnInteraction: false,
+        },
+        breakpoints: {
+            576: { 
+                slidesPerView: 3, 
+                grid: { rows: 2, fill: 'row' },
+                spaceBetween: 15 
+            },
+            768: { 
+                slidesPerView: 4, 
+                grid: { rows: 2, fill: 'row' },
+                spaceBetween: 20 
+            },
+            1024: { 
+                slidesPerView: 5, 
+                grid: { rows: 2, fill: 'row' },
+                spaceBetween: 25 
+            }
+        }
+    });
+});
+</script>
+
 <!-- YouTube Section (Moved Up to align with Inquiry Sidebar) -->
-<section class="youtube-section">
+<!--<section class="youtube-section">
     <div class="container">
         <div class="section-header">
             <div class="title-group">
@@ -82,7 +215,6 @@
         </div>
 
         <div class="youtube-player-layout">
-            <!-- Main Player Area -->
             <div class="player-main" id="mainPlayer">
                 <% if (youtubeVideos && youtubeVideos.length> 0) { %>
                     <div class="main-video-card" data-video-id="<%= youtubeVideos[0].video_id %>">
@@ -110,8 +242,6 @@
                         </div>
                         <% } %>
             </div>
-
-            <!-- Playlist Area -->
             <div class="player-sidebar">
                 <div class="playlist-header">다음 영상</div>
                 <div class="playlist-items">
@@ -155,10 +285,10 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 
 <!-- Planner Section -->
-<section class="planner-section">
+<!-- <section class="planner-section">
     <div class="container">
         <div class="section-header">
             <h3 class="section-title">이달의 <span>정예 플래너</span></h3>
@@ -218,4 +348,4 @@
                             <% } %>
         </div>
     </div>
-</section>
+</section> -->

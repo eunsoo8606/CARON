@@ -5,6 +5,7 @@ const Banner = sequelize.define('Banner', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     title: { type: DataTypes.STRING(200) },
     image_id: { type: DataTypes.INTEGER, allowNull: false },
+    mobile_image_id: { type: DataTypes.INTEGER },
     link_url: { type: DataTypes.STRING(512) },
     order_index: { type: DataTypes.INTEGER, defaultValue: 0 },
     is_visible: { type: DataTypes.TINYINT(1), defaultValue: 1 }
