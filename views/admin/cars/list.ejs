@@ -36,7 +36,7 @@
                             <td>
                                 <div class="car-thumb">
                                     <% if (car.thumbnail_id) { %>
-                                        <img src="/api/image/<%= car.thumbnail_id %>" alt="thumbnail">
+                                        <img src="/api/image/<%= car.thumbnail_id %>" alt="thumbnail" loading="lazy">
                                         <% } else { %>
                                             <div class="no-img">No Img</div>
                                             <% } %>

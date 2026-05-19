@@ -70,6 +70,9 @@ router.get('/image/:id', async (req, res) => {
         const uploadItem = await Upload.findByPk(req.params.id);
         if (!uploadItem) return res.status(404).send('Image not found');
 
+        // 브라우저 캐싱 적용 (서버 DB 커넥션 부하 방지 - 1일 유지)
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+
         if (uploadItem.file_path) {
             // 외부 링크(http 또는 https)인 경우 그대로 리다이렉트
             if (uploadItem.file_path.startsWith('http://') || uploadItem.file_path.startsWith('https://')) {

@@ -14,10 +14,10 @@ const sequelize = new Sequelize(
         dialectModule: mysql2, // Vercel 환경에서 mysql2 로드 오류 해결을 위한 핵심 설정
         logging: false, // 콘솔에 SQL 로그가 너무 많이 찍히는 것을 방지
         pool: {
-            max: 5,
+            max: 15,
             min: 0,
             acquire: 30000,
-            idle: 10000
+            idle: 5000
         },
         dialectOptions: {
             // MySQL 8 이상에서 시간대 관련 오류 방지
