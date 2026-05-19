@@ -6,7 +6,7 @@
             <div class="section-header">
                 <h3>브랜드 선택</h3>
             </div>
-            
+
             <!-- 국산차 섹션 -->
             <div class="brand-category">
                 <h4 class="category-title">국산차 브랜드</h4>
@@ -150,53 +150,58 @@
                 <div class="filter-search-input">
                     <input type="text" placeholder="모델명 또는 브랜드를 입력하세요" value="<%= query.q || '' %>">
                     <button class="btn-filter-search">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-search">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.3-4.3" />
+                        </svg>
                     </button>
                 </div>
             </div>
-            
+
             <div class="filter-options">
                 <div class="filter-group">
                     <label>차종</label>
                     <select>
                         <option value="">전체 차종</option>
-                        <option value="세단" <%= query.car_type === '세단' ? 'selected' : '' %>>세단</option>
-                        <option value="SUV" <%= query.car_type === 'SUV' ? 'selected' : '' %>>SUV</option>
-                        <option value="경차/소형" <%= query.car_type === '경차/소형' ? 'selected' : '' %>>경차/소형</option>
-                        <option value="MPV/RV" <%= query.car_type === 'MPV/RV' ? 'selected' : '' %>>MPV/RV</option>
-                        <option value="스포츠/쿠페" <%= query.car_type === '스포츠/쿠페' ? 'selected' : '' %>>스포츠/쿠페</option>
+                        <option value="세단" <%=query.car_type==='세단' ? 'selected' : '' %>>세단</option>
+                        <option value="SUV" <%=query.car_type==='SUV' ? 'selected' : '' %>>SUV</option>
+                        <option value="경차/소형" <%=query.car_type==='경차/소형' ? 'selected' : '' %>>경차/소형</option>
+                        <option value="MPV/RV" <%=query.car_type==='MPV/RV' ? 'selected' : '' %>>MPV/RV</option>
+                        <option value="스포츠/쿠페" <%=query.car_type==='스포츠/쿠페' ? 'selected' : '' %>>스포츠/쿠페</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label>가격대</label>
                     <select>
                         <option value="">전체 가격</option>
-                        <option value="1" <%= query.price_range === '1' ? 'selected' : '' %>>2,000만원 이하</option>
-                        <option value="2" <%= query.price_range === '2' ? 'selected' : '' %>>2,000 ~ 4,000만원</option>
-                        <option value="3" <%= query.price_range === '3' ? 'selected' : '' %>>4,000 ~ 6,000만원</option>
-                        <option value="4" <%= query.price_range === '4' ? 'selected' : '' %>>6,000 ~ 8,000만원</option>
-                        <option value="5" <%= query.price_range === '5' ? 'selected' : '' %>>8,000만원 이상</option>
+                        <option value="1" <%=query.price_range==='1' ? 'selected' : '' %>>2,000만원 이하</option>
+                        <option value="2" <%=query.price_range==='2' ? 'selected' : '' %>>2,000 ~ 4,000만원</option>
+                        <option value="3" <%=query.price_range==='3' ? 'selected' : '' %>>4,000 ~ 6,000만원</option>
+                        <option value="4" <%=query.price_range==='4' ? 'selected' : '' %>>6,000 ~ 8,000만원</option>
+                        <option value="5" <%=query.price_range==='5' ? 'selected' : '' %>>8,000만원 이상</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label>연료</label>
                     <select>
                         <option value="">전체 연료</option>
-                        <option value="가솔린" <%= query.fuel_type === '가솔린' ? 'selected' : '' %>>가솔린</option>
-                        <option value="디젤" <%= query.fuel_type === '디젤' ? 'selected' : '' %>>디젤</option>
-                        <option value="하이브리드" <%= query.fuel_type === '하이브리드' ? 'selected' : '' %>>하이브리드</option>
-                        <option value="전기" <%= query.fuel_type === '전기' ? 'selected' : '' %>>전기</option>
-                        <option value="LPG" <%= query.fuel_type === 'LPG' ? 'selected' : '' %>>LPG</option>
+                        <option value="가솔린" <%=query.fuel_type==='가솔린' ? 'selected' : '' %>>가솔린</option>
+                        <option value="디젤" <%=query.fuel_type==='디젤' ? 'selected' : '' %>>디젤</option>
+                        <option value="하이브리드" <%=query.fuel_type==='하이브리드' ? 'selected' : '' %>>하이브리드</option>
+                        <option value="전기" <%=query.fuel_type==='전기' ? 'selected' : '' %>>전기</option>
+                        <option value="LPG" <%=query.fuel_type==='LPG' ? 'selected' : '' %>>LPG</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label>인승</label>
                     <select>
                         <option value="">전체 인승</option>
-                        <option value="2" <%= query.capacity === '2' ? 'selected' : '' %>>2인승</option>
-                        <option value="5" <%= query.capacity === '5' ? 'selected' : '' %>>5인승</option>
-                        <option value="7" <%= query.capacity === '7' ? 'selected' : '' %>>7인승</option>
-                        <option value="9" <%= query.capacity === '9' ? 'selected' : '' %>>9인승 이상</option>
+                        <option value="2" <%=query.capacity==='2' ? 'selected' : '' %>>2인승</option>
+                        <option value="5" <%=query.capacity==='5' ? 'selected' : '' %>>5인승</option>
+                        <option value="7" <%=query.capacity==='7' ? 'selected' : '' %>>7인승</option>
+                        <option value="9" <%=query.capacity==='9' ? 'selected' : '' %>>9인승 이상</option>
                     </select>
                 </div>
                 <button class="btn-filter-reset">초기화</button>
@@ -206,102 +211,40 @@
         <!-- Search Results -->
         <section class="search-results">
             <div class="results-info">
-                <p>총 <span><%= cars.length %></span>대의 차량이 검색되었습니다.</p>
+                <p>총 <span>
+                        <%= totalCount %>
+                    </span>대의 차량이 검색되었습니다.</p>
                 <div class="results-sort">
-                    <button class="<%= !query.sort || query.sort === 'latest' ? 'active' : '' %>" data-sort="latest">최신순</button>
-                    <button class="<%= query.sort === 'price_asc' ? 'active' : '' %>" data-sort="price_asc">낮은가격순</button>
-                    <button class="<%= query.sort === 'price_desc' ? 'active' : '' %>" data-sort="price_desc">높은가격순</button>
+                    <button class="<%= !query.sort || query.sort === 'latest' ? 'active' : '' %>"
+                        data-sort="latest">최신순</button>
+                    <button class="<%= query.sort === 'price_asc' ? 'active' : '' %>"
+                        data-sort="price_asc">낮은가격순</button>
+                    <button class="<%= query.sort === 'price_desc' ? 'active' : '' %>"
+                        data-sort="price_desc">높은가격순</button>
                 </div>
             </div>
 
             <div class="car-grid">
-                <% if (cars && cars.length > 0) { %>
-                    <% cars.forEach(car => { %>
-                    <div class="car-card">
-                        <div class="car-image">
-                            <% if (car.thumbnail_id) { %>
-                                <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %>">
-                            <% } else { %>
-                                <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070" alt="Car Image">
-                            <% } %>
-                            
-                            <div class="card-badges">
-                                <% if (car.is_hot) { %><span class="badge-hot">HOT</span><% } %>
-                                <% if (car.discount_rate > 0) { %>
-                                    <span class="badge-discount"><%= Math.floor(car.discount_rate) %>% <i class="fas fa-arrow-down"></i></span>
-                                <% } %>
-                            </div>
-                        </div>
-                        <div class="car-details">
-                            <div class="car-meta">
-                                <% if (car.brand) { %><span class="car-brand-text"><%= car.brand %></span> · <% } %>
-                                <% if (car.year) { %><span class="car-year"><%= car.year %>년형</span><% } %>
-                                <span class="car-fuel-text"><%= car.fuel_type %></span>
-                            </div>
-                            <h4 class="car-name"><%= car.name_ko %></h4>
-                            
-                            <div class="car-spec-badges">
-                                <span class="spec-badge"><%= car.fuel_type %></span>
-                                <% if (car.capacity) { %>
-                                    <span class="spec-badge"><%= car.capacity %>인승</span>
-                                <% } %>
-                            </div>
-
-                            <!-- 차량 원가(출고가) 상시 표시 -->
-                            <div class="original-price-info">
-                                <span class="label">차량 출고가</span>
-                                <span class="val"><%= car.original_price.toLocaleString() %>원</span>
-                            </div>
-
-                            <div class="car-price-box premium-price">
-                                <div class="price-main">
-                                    <span class="price-label">월</span>
-                                    <div class="price-value">
-                                        <% if (car.discount_rate > 0) { 
-                                            const originalRent = Math.floor(car.rent_fee / (1 - (car.discount_rate / 100)));
-                                        %>
-                                            <div class="rent-discount-wrap">
-                                                <span class="before-rent"><%= originalRent.toLocaleString() %>원</span>
-                                                <div class="after-rent">
-                                                    <span><%= car.rent_fee.toLocaleString() %></span>
-                                                    <span class="price-unit">원~</span>
-                                                </div>
-                                            </div>
-                                        <% } else { %>
-                                            <span class="main-val"><%= car.rent_fee.toLocaleString() %></span>
-                                            <span class="price-unit">원~</span>
-                                        <% } %>
+                <% if (cars && cars.length> 0) { %>
+                    <% cars.forEach(car=> { %>
+                        <%- include('partials/car_card', { car: car }) %>
+                            <% }); %>
+                                <% } else { %>
+                                    <div class="no-results"
+                                        style="grid-column: 1/-1; padding: 100px 0; text-align: center; color: #888;">
+                                        <p>검색 조건에 맞는 차량이 없습니다.</p>
                                     </div>
-                                </div>
-                                <div class="price-criteria">
-                                    선수금 <%= car.down_payment %>%, <%= car.period %>개월, 연 <%= car.mileage %>만km 기준
-                                </div>
-                            </div>
-                            <div class="car-footer">
-                                <% if (car.is_fast_ship) { %><span class="tag">빠른출고</span><% } %>
-                                <% if (car.hashtags) { %>
-                                    <% car.hashtags.split(',').forEach(tag => { %>
-                                        <% if (tag.trim()) { %>
-                                            <span class="tag">#<%= tag.trim() %></span>
-                                        <% } %>
-                                    <% }); %>
-                                <% } %>
-                                <a href="#" class="btn-car-detail">견적확인</a>
-                            </div>
-                        </div>
-                    </div>
-                    <% }); %>
-                <% } else { %>
-                    <div class="no-results" style="grid-column: 1/-1; padding: 100px 0; text-align: center; color: #888;">
-                        <p>검색 조건에 맞는 차량이 없습니다.</p>
-                    </div>
-                <% } %>
+                                    <% } %>
             </div>
 
-            <!-- Scroll Sentinel for Infinite Scroll -->
-            <div id="scrollSentinel" class="scroll-sentinel" style="<%= cars.length === 0 ? 'display: none;' : '' %>">
-                <div class="loader"></div>
-                <p>차량을 더 불러오는 중입니다...</p>
+            <!-- Pagination Load More -->
+            <div class="load-more-container" style="text-align: center; padding: 40px 0;">
+                <% if (typeof hasMore !=='undefined' && hasMore) { %>
+                    <button id="btnLoadMore" class="btn-load-more"
+                        style="padding: 15px 40px; font-size: 16px; border-radius: 30px; background: white; border: 1px solid #ddd; cursor: pointer; color: #333; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.2s ease;">
+                        차량 더보기 <i class="fas fa-chevron-down" style="margin-left: 5px;"></i>
+                    </button>
+                    <% } %>
             </div>
         </section>
     </div>

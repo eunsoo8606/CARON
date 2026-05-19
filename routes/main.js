@@ -143,15 +143,21 @@ router.get('/car/search', async (req, res) => {
         if (sort === 'price_asc') orderClause = [['rent_fee', 'ASC']];
         else if (sort === 'price_desc') orderClause = [['rent_fee', 'DESC']];
 
-        const cars = await Car.findAll({
+        const limit = 12;
+        const { count, rows: cars } = await Car.findAndCountAll({
             where: whereClause,
-            order: orderClause
+            order: orderClause,
+            limit: limit
         });
+
+        const hasMore = count > limit;
 
         res.render('search', {
             title: '차량검색 - CARON',
             description: '원하시는 브랜드와 차종, 가격대에 맞는 최적의 신차 장기렌트/리스 견적을 실시간으로 확인하세요.',
             cars,
+            totalCount: count,
+            hasMore,
             query: req.query
         });
     } catch (err) {

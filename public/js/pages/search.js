@@ -71,12 +71,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. 무한 스크롤 제어 (데이터가 적을 때는 로더 숨김)
-    const sentinel = document.getElementById('scrollSentinel');
-    if (sentinel) {
-        if (document.querySelectorAll('.car-card').length < 12) {
-            sentinel.style.display = 'none';
-        }
+    // 6. 더보기 버튼 로직 (Ajax Pagination)
+    const btnLoadMore = document.getElementById('btnLoadMore');
+    if (btnLoadMore) {
+        btnLoadMore.addEventListener('click', async () => {
+            const currentOffset = document.querySelectorAll('.car-card').length;
+            const params = getParams();
+            params.set('offset', currentOffset);
+
+            // 로딩 상태 UI 변경
+            const originalText = btnLoadMore.innerHTML;
+            btnLoadMore.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> 불러오는 중...';
+            btnLoadMore.disabled = true;
+
+            try {
+                const response = await fetch(`/api/cars/search/more?${params.toString()}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const carGrid = document.querySelector('.car-grid');
+                    // 가져온 HTML 카드를 그리드 하단에 추가
+                    carGrid.insertAdjacentHTML('beforeend', data.html);
+
+                    // 더 이상 가져올 데이터가 없으면 버튼 숨김
+                    if (!data.hasMore) {
+                        btnLoadMore.parentElement.style.display = 'none';
+                    }
+                } else {
+                    alert('차량을 불러오는데 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Load More Error:', error);
+                alert('통신 오류가 발생했습니다.');
+            } finally {
+                btnLoadMore.innerHTML = originalText;
+                btnLoadMore.disabled = false;
+            }
+        });
     }
 
     // 7. 검색 결과로 자동 스크롤 (쿼리가 있을 때)

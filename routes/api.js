@@ -91,4 +91,64 @@ router.get('/image/:id', async (req, res) => {
     }
 });
 
+// 차량 더보기 (Ajax Pagination)
+const ejs = require('ejs');
+const path = require('path');
+
+router.get('/cars/search/more', async (req, res) => {
+    const { brand, car_type, fuel_type, capacity, price_range, q, sort, offset } = req.query;
+    
+    try {
+        let whereClause = { is_visible: 1 };
+
+        if (brand) whereClause.brand = brand;
+        if (car_type) whereClause.car_type = car_type;
+        if (fuel_type) whereClause.fuel_type = fuel_type;
+        if (capacity) whereClause.capacity = capacity;
+
+        if (price_range) {
+            if (price_range === '1') whereClause.original_price = { [Op.lte]: 20000000 };
+            else if (price_range === '2') whereClause.original_price = { [Op.between]: [20000000, 40000000] };
+            else if (price_range === '3') whereClause.original_price = { [Op.between]: [40000000, 60000000] };
+            else if (price_range === '4') whereClause.original_price = { [Op.between]: [60000000, 80000000] };
+            else if (price_range === '5') whereClause.original_price = { [Op.gte]: 80000000 };
+        }
+
+        if (q) {
+            whereClause[Op.or] = [
+                { name_ko: { [Op.like]: `%${q}%` } },
+                { brand: { [Op.like]: `%${q}%` } }
+            ];
+        }
+
+        let orderClause = [['created_at', 'DESC']];
+        if (sort === 'price_asc') orderClause = [['rent_fee', 'ASC']];
+        else if (sort === 'price_desc') orderClause = [['rent_fee', 'DESC']];
+
+        const limit = 12;
+        const skip = parseInt(offset) || 0;
+
+        const { count, rows: cars } = await Car.findAndCountAll({
+            where: whereClause,
+            order: orderClause,
+            limit: limit,
+            offset: skip
+        });
+
+        const hasMore = count > (skip + limit);
+
+        // 부분 렌더링된 HTML 텍스트 생성
+        let html = '';
+        for (const car of cars) {
+            const cardHtml = await ejs.renderFile(path.join(__dirname, '../views/partials/car_card.ejs'), { car: car });
+            html += cardHtml;
+        }
+
+        res.json({ success: true, html, hasMore });
+    } catch (err) {
+        console.error('Search More API Error:', err);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+});
+
 module.exports = router;

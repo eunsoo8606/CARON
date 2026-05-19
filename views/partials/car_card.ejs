@@ -1,0 +1,98 @@
+<div class="car-card">
+    <div class="car-image">
+        <% if (car.thumbnail_id) { %>
+            <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %>" loading="lazy">
+            <% } else { %>
+                <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070" alt="Car Image"
+                    loading="lazy">
+                <% } %>
+
+                    <div class="card-badges">
+                        <% if (car.is_hot) { %><span class="badge-hot">HOT</span>
+                            <% } %>
+                                <% if (car.discount_rate> 0) { %>
+                                    <span class="badge-discount">
+                                        <%= Math.floor(car.discount_rate) %>% <i class="fas fa-arrow-down"></i>
+                                    </span>
+                                    <% } %>
+                    </div>
+    </div>
+    <div class="car-details">
+        <div class="car-meta">
+            <% if (car.brand) { %><span class="car-brand-text">
+                    <%= car.brand %>
+                </span> · <% } %>
+                    <% if (car.year) { %><span class="car-year">
+                            <%= car.year %>
+                        </span>
+                        <% } %>
+                            <span class="car-fuel-text">
+                                <%= car.fuel_type %>
+                            </span>
+        </div>
+        <h4 class="car-name">
+            <%= car.name_ko %>
+        </h4>
+
+        <div class="car-spec-badges">
+            <span class="spec-badge">
+                <%= car.fuel_type %>
+            </span>
+            <% if (car.capacity) { %>
+                <span class="spec-badge">
+                    <%= car.capacity %>
+                </span>
+                <% } %>
+        </div>
+
+        <!-- 차량 원가(출고가) 상시 표시 -->
+        <div class="original-price-info">
+            <span class="label">차량 출고가</span>
+            <span class="val">
+                <%= car.original_price.toLocaleString() %>원
+            </span>
+        </div>
+
+        <div class="car-price-box premium-price">
+            <div class="price-main">
+                <span class="price-label">월</span>
+                <div class="price-value">
+                    <% if (car.discount_rate> 0) {
+                        const originalRent = Math.floor(car.rent_fee / (1 - (car.discount_rate / 100)));
+                        %>
+                        <div class="rent-discount-wrap">
+                            <span class="before-rent">
+                                <%= originalRent.toLocaleString() %>원
+                            </span>
+                            <div class="after-rent">
+                                <span>
+                                    <%= car.rent_fee.toLocaleString() %>
+                                </span>
+                                <span class="price-unit">원~</span>
+                            </div>
+                        </div>
+                        <% } else { %>
+                            <span class="main-val">
+                                <%= car.rent_fee.toLocaleString() %>
+                            </span>
+                            <span class="price-unit">원~</span>
+                            <% } %>
+                </div>
+            </div>
+            <div class="price-criteria">
+                선수금 <%= car.down_payment %>, <%= car.period %>, <%= car.mileage %> 기준
+            </div>
+        </div>
+        <div class="car-footer">
+            <% if (car.is_fast_ship) { %><span class="tag">빠른출고</span>
+                <% } %>
+                    <% if (car.hashtags) { %>
+                        <% car.hashtags.split(',').forEach(tag=> { %>
+                            <% if (tag.trim()) { %>
+                                <span class="tag">#<%= tag.trim() %></span>
+                                <% } %>
+                                    <% }); %>
+                                        <% } %>
+        </div>
+    </div>
+</div>
