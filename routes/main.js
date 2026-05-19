@@ -117,7 +117,12 @@ router.get('/car/search', async (req, res) => {
     try {
         let whereClause = { is_visible: 1 };
 
-        if (brand) whereClause.brand = brand;
+        if (brand) {
+            let searchBrand = brand;
+            if (brand === '지프') searchBrand = 'Jeep';
+            if (brand === '도요타') searchBrand = '토요타';
+            whereClause.brand = searchBrand;
+        }
         if (car_type) whereClause.car_type = car_type;
         if (fuel_type) whereClause.fuel_type = fuel_type;
         if (capacity) whereClause.capacity = capacity;
