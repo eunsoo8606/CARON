@@ -71,7 +71,9 @@ router.get('/image/:id', async (req, res) => {
         if (!uploadItem) return res.status(404).send('Image not found');
 
         if (uploadItem.file_path) {
-            return res.redirect(encodeURI(uploadItem.file_path));
+            // 경로 세그먼트별로 안전하게 인코딩 (특수문자, 괄호, # 등 방어)
+            const encodedPath = uploadItem.file_path.split('/').map(segment => encodeURIComponent(segment)).join('/');
+            return res.redirect(encodedPath);
         }
 
         return res.status(404).send('Image data not found');
