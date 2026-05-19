@@ -70,8 +70,8 @@ router.get('/image/:id', async (req, res) => {
         const uploadItem = await Upload.findByPk(req.params.id);
         if (!uploadItem) return res.status(404).send('Image not found');
 
-        if (uploadItem.file_path && uploadItem.file_path.startsWith('http')) {
-            return res.redirect(uploadItem.file_path);
+        if (uploadItem.file_path) {
+            return res.redirect(encodeURI(uploadItem.file_path));
         }
 
         return res.status(404).send('Image data not found');
