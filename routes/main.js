@@ -222,4 +222,63 @@ router.get('/rss', async (req, res) => {
     }
 });
 
+// 동적 Sitemap.xml 생성
+router.get('/sitemap.xml', async (req, res) => {
+    try {
+        const baseUrl = 'https://caron-opal.vercel.app';
+        
+        // 정적 페이지 리스트
+        const staticPages = [
+            '',
+            '/about',
+            '/succession',
+            '/car/search'
+        ];
+
+        // 노출 중인 차량 목록 조회 (최근 수정된 날짜 순)
+        const cars = await Car.findAll({
+            where: { is_visible: 1 },
+            attributes: ['name_ko', 'updated_at'],
+            order: [['updated_at', 'DESC']]
+        });
+
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+
+        // 1. 정적 기본 페이지 등록
+        staticPages.forEach(page => {
+            const priority = page === '' ? '1.0' : '0.8';
+            xml += `
+  <url>
+    <loc>${baseUrl}${page}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+        });
+
+        // 2. 동적 차량 정보 검색 페이지 등록
+        cars.forEach(car => {
+            const carUrl = `${baseUrl}/car/search?q=${encodeURIComponent(car.name_ko)}`;
+            const lastMod = car.updated_at ? new Date(car.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+            xml += `
+  <url>
+    <loc>${carUrl.replace(/&/g, '&amp;')}</loc>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+        });
+
+        xml += `
+</urlset>`;
+
+        res.set('Content-Type', 'application/xml');
+        res.send(xml);
+    } catch (err) {
+        console.error('Sitemap Generation Error:', err);
+        res.status(500).send('Error generating sitemap');
+    }
+});
+
 module.exports = router;
