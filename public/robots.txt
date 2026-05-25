@@ -4,4 +4,4 @@ Disallow: /admin/
 Disallow: /console/
 Disallow: /api/
 
-Sitemap: https://caron-opal.vercel.app/sitemap.xml
+Sitemap: https://caron.it.kr/sitemap.xml

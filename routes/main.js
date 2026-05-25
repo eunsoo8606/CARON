@@ -225,7 +225,7 @@ router.get('/rss', async (req, res) => {
 // 동적 Sitemap.xml 생성
 router.get('/sitemap.xml', async (req, res) => {
     try {
-        const baseUrl = 'https://caron-opal.vercel.app';
+        const baseUrl = 'https://caron.it.kr';
         
         // 정적 페이지 리스트
         const staticPages = [
