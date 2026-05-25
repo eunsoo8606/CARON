@@ -242,15 +242,30 @@ router.get('/sitemap.xml', async (req, res) => {
             order: [['updated_at', 'DESC']]
         });
 
-        let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+        // XML 특수기호 이스케이프 헬퍼 함수
+        const escapeXml = (unsafe) => {
+            return unsafe.replace(/[<>&'"]/g, (c) => {
+                switch (c) {
+                    case '<': return '&lt;';
+                    case '>': return '&gt;';
+                    case '&': return '&amp;';
+                    case '\'': return '&apos;';
+                    case '"': return '&quot;';
+                    default: return c;
+                }
+            });
+        };
+
+        // 첫 줄 공백 방지를 위해 문자열을 붙여서 시작
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>';
+        xml += '\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
         // 1. 정적 기본 페이지 등록
         staticPages.forEach(page => {
             const priority = page === '' ? '1.0' : '0.8';
             xml += `
   <url>
-    <loc>${baseUrl}${page}</loc>
+    <loc>${escapeXml(baseUrl + page)}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>${priority}</priority>
@@ -263,15 +278,14 @@ router.get('/sitemap.xml', async (req, res) => {
             const lastMod = car.updated_at ? new Date(car.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
             xml += `
   <url>
-    <loc>${carUrl.replace(/&/g, '&amp;')}</loc>
+    <loc>${escapeXml(carUrl)}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>`;
         });
 
-        xml += `
-</urlset>`;
+        xml += '\n</urlset>';
 
         res.set('Content-Type', 'application/xml');
         res.send(xml);
