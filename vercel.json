@@ -8,6 +8,22 @@
   ],
   "routes": [
     {
+      "src": "/(css|js|images|favicon|uploads)/(.*)",
+      "dest": "/public/$1/$2"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/public/robots.txt"
+    },
+    {
+      "src": "/site.webmanifest",
+      "dest": "/public/site.webmanifest"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
+    },
+    {
       "src": "/(.*)",
       "dest": "app.js"
     }

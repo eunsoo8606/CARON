@@ -69,8 +69,8 @@ router.get('/', async (req, res) => {
         }
 
         res.render('index', {
-            title: '신차장기렌트·리스 전문 - CARON',
-            description: '신차 장기렌트, 오토리스, 리스/렌트 승계 전문 플랫폼 CARON. 최적의 모빌리티 솔루션을 제안합니다.',
+            title: '신차장기렌트·리스 전문 - 카온',
+            description: '신차 장기렌트, 오토리스, 리스/렌트 승계 전문 플랫폼 카온. 최적의 모빌리티 솔루션을 제안합니다.',
             banners,
             youtubeVideos,
             planners,
@@ -81,8 +81,8 @@ router.get('/', async (req, res) => {
     } catch (err) {
         console.error('Main Page Load Error:', err);
         res.render('index', {
-            title: '신차장기렌트·리스 전문 - CARON',
-            description: '신차 장기렌트, 오토리스 전문 CARON입니다.',
+            title: '신차장기렌트·리스 전문 - 카온',
+            description: '신차 장기렌트, 오토리스 전문 카온입니다.',
             banners: [],
             youtubeVideos: [],
             planners: [],
@@ -96,16 +96,16 @@ router.get('/', async (req, res) => {
 // 회사소개
 router.get('/about', (req, res) => {
     res.render('about', {
-        title: '회사소개 - CARON',
-        description: '자동차 금융의 새로운 기준을 만드는 CARON의 브랜드 스토리와 비전을 소개합니다.'
+        title: '회사소개 - 카온',
+        description: '자동차 금융의 새로운 기준을 만드는 카온의 brand 스토리와 비전을 소개합니다.'
     });
 });
 
 // 리스/렌트 승계
 router.get('/succession', (req, res) => {
     res.render('succession', {
-        title: '리스/렌트 승계 안내 - CARON',
-        description: '복잡한 리스 및 장기렌트 승계를 빠르고 안전하게 도와드리는 CARON 승계 서비스입니다.',
+        title: '리스/렌트 승계 안내 - 카온',
+        description: '복잡한 리스 및 장기렌트 승계를 빠르고 안전하게 도와드리는 카온 승계 서비스입니다.',
         hideSidebar: true
     });
 });
@@ -158,7 +158,7 @@ router.get('/car/search', async (req, res) => {
         const hasMore = count > limit;
 
         res.render('search', {
-            title: '차량검색 - CARON',
+            title: '차량검색 - 카온',
             description: '원하시는 브랜드와 차종, 가격대에 맞는 최적의 신차 장기렌트/리스 견적을 실시간으로 확인하세요.',
             cars,
             totalCount: count,
@@ -185,9 +185,9 @@ router.get('/rss', async (req, res) => {
         let rssXml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-    <title>CARON - 신차 장기렌트·리스 최신 매물</title>
+    <title>카온 - 신차 장기렌트·리스 최신 매물</title>
     <link>${baseUrl}</link>
-    <description>신차 장기렌트, 오토리스 전문 플랫폼 CARON의 최신 차량 매물 정보입니다.</description>
+    <description>신차 장기렌트, 오토리스 전문 플랫폼 카온의 최신 차량 매물 정보입니다.</description>
     <language>ko-kr</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${baseUrl}/rss" rel="self" type="application/rss+xml" />
