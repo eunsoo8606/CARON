@@ -7,6 +7,8 @@ const Planner = require('../models/Planner');
 const Admin = require('../models/Admin');
 const Upload = require('../models/Upload');
 const Car = require('../models/Car');
+const Review = require('../models/Review');
+
 
 // 메인 페이지
 router.get('/', async (req, res) => {
@@ -52,6 +54,12 @@ router.get('/', async (req, res) => {
             order: [['updated_at', 'DESC']],
             limit: 4
         });
+        
+        // 고객 리뷰 조회
+        const reviews = await Review.findAll({
+            where: { is_visible: 1 },
+            order: [['order_index', 'ASC'], ['created_at', 'DESC']]
+        });
 
         // 제휴사 로고 조회
         const fs = require('fs');
@@ -76,6 +84,7 @@ router.get('/', async (req, res) => {
             planners,
             top10Cars,
             hotCars,
+            reviews,
             affiliates
         });
     } catch (err) {
@@ -88,6 +97,7 @@ router.get('/', async (req, res) => {
             planners: [],
             top10Cars: [],
             hotCars: [],
+            reviews: [],
             affiliates: []
         });
     }

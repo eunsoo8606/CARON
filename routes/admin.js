@@ -16,6 +16,7 @@ const AccessLog = require('../models/AccessLog');
 const Upload = require('../models/Upload');
 const Banner = require('../models/Banner');
 const Youtube = require('../models/Youtube');
+const Review = require('../models/Review');
 
 const { authAdmin } = require('../middleware/auth');
 const { decrypt } = require('../utils/crypto');
@@ -521,6 +522,105 @@ router.post('/planners/:id/delete', authAdmin, async (req, res) => {
         await Planner.destroy({ where: { id: req.params.id } });
         res.sendStatus(200);
     } catch (err) {
+        res.status(500).send('Delete error');
+    }
+});
+
+// 리뷰 관리
+router.get('/reviews', authAdmin, async (req, res) => {
+    try {
+        const reviews = await Review.findAll({ order: [['order_index', 'ASC'], ['created_at', 'DESC']] });
+        res.render('admin/review/list', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/reviews',
+            reviews
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
+router.get('/reviews/new', authAdmin, (req, res) => {
+    res.render('admin/review/form', {
+        layout: 'layout/admin_base',
+        adminName: req.admin.name,
+        currentPath: '/console/reviews',
+        review: null
+    });
+});
+
+router.get('/reviews/:id', authAdmin, async (req, res) => {
+    try {
+        const review = await Review.findByPk(req.params.id);
+        if (!review) return res.send('<script>alert("존재하지 않는 리뷰입니다."); history.back();</script>');
+        res.render('admin/review/form', {
+            layout: 'layout/admin_base',
+            adminName: req.admin.name,
+            currentPath: '/console/reviews',
+            review
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
+router.post('/reviews/save', authAdmin, upload.single('car_image'), async (req, res) => {
+    const { id, car_name, author_name, author_region, author_detail, review_text, rating, order_index, is_visible } = req.body;
+    try {
+        let car_image_id = null;
+        if (req.file) {
+            // WebP 변환 및 클라우드(Vercel Blob) 업로드
+            const webpBuffer = await sharp(req.file.buffer).webp({ quality: 80 }).toBuffer();
+            const fileName = `reviews/${Date.now()}.webp`;
+            const blob = await put(fileName, webpBuffer, { access: 'public' });
+            
+            const newUpload = await Upload.create({
+                original_name: req.file.originalname,
+                saved_name: blob.pathname,
+                file_path: blob.url,
+                file_size: webpBuffer.length,
+                mime_type: 'image/webp',
+                ref_type: 'review'
+            });
+            car_image_id = newUpload.id;
+        }
+
+        const reviewData = {
+            car_name,
+            author_name,
+            author_region,
+            author_detail,
+            review_text,
+            rating: parseInt(rating) || 5,
+            order_index: parseInt(order_index) || 0,
+            is_visible: is_visible === '1' ? 1 : 0
+        };
+
+        if (car_image_id) {
+            reviewData.car_image_id = car_image_id;
+        }
+
+        if (id) {
+            await Review.update(reviewData, { where: { id } });
+        } else {
+            await Review.create(reviewData);
+        }
+        res.redirect('/console/reviews');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error saving review');
+    }
+});
+
+router.post('/reviews/:id/delete', authAdmin, async (req, res) => {
+    try {
+        await Review.destroy({ where: { id: req.params.id } });
+        res.sendStatus(200);
+    } catch (err) {
+        console.error(err);
         res.status(500).send('Delete error');
     }
 });
