@@ -232,8 +232,21 @@ router.get('/rss', async (req, res) => {
     }
 });
 
+// Sitemap 캐싱을 위한 메모리 변수 (서버 부하 경감 및 속도 향상)
+let cachedSitemap = null;
+let sitemapCacheTime = 0;
+const SITEMAP_CACHE_TTL = 3 * 60 * 60 * 1000; // 3시간 캐시 유지
+
 // 동적 Sitemap.xml 생성
 router.get('/sitemap.xml', async (req, res) => {
+    const now = Date.now();
+    
+    // 캐시가 유효한 경우 캐싱된 데이터 반환
+    if (cachedSitemap && (now - sitemapCacheTime < SITEMAP_CACHE_TTL)) {
+        res.set('Content-Type', 'application/xml');
+        return res.send(cachedSitemap);
+    }
+
     try {
         const baseUrl = 'https://caron.it.kr';
         
@@ -272,13 +285,10 @@ router.get('/sitemap.xml', async (req, res) => {
 
         // 1. 정적 기본 페이지 등록
         staticPages.forEach(page => {
-            const priority = page === '' ? '1.0' : '0.8';
             xml += `
   <url>
     <loc>${escapeXml(baseUrl + page)}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>${priority}</priority>
   </url>`;
         });
 
@@ -290,17 +300,25 @@ router.get('/sitemap.xml', async (req, res) => {
   <url>
     <loc>${escapeXml(carUrl)}</loc>
     <lastmod>${lastMod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
   </url>`;
         });
 
         xml += '\n</urlset>';
 
+        // 캐시 업데이트
+        cachedSitemap = xml;
+        sitemapCacheTime = now;
+
         res.set('Content-Type', 'application/xml');
         res.send(xml);
     } catch (err) {
         console.error('Sitemap Generation Error:', err);
+        
+        // DB 에러 발생 시 만료된 캐시가 있다면 서빙하여 사이트 가용성을 유지
+        if (cachedSitemap) {
+            res.set('Content-Type', 'application/xml');
+            return res.send(cachedSitemap);
+        }
         res.status(500).send('Error generating sitemap');
     }
 });
