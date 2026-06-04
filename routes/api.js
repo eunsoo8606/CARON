@@ -130,6 +130,7 @@ router.get('/cars/search/more', async (req, res) => {
         let orderClause = [['created_at', 'DESC']];
         if (sort === 'price_asc') orderClause = [['rent_fee', 'ASC']];
         else if (sort === 'price_desc') orderClause = [['rent_fee', 'DESC']];
+        else if (sort === 'top10') orderClause = [['is_top10', 'DESC'], ['created_at', 'DESC']];
 
         const limit = 12;
         const skip = parseInt(offset) || 0;
@@ -156,7 +157,7 @@ router.get('/cars/search/more', async (req, res) => {
             html += cardHtml;
         }
 
-        res.json({ success: true, html, hasMore });
+        res.json({ success: true, html, hasMore, totalCount: count });
     } catch (err) {
         console.error('Search More API Error:', err);
         res.status(500).json({ success: false, message: 'Server Error' });

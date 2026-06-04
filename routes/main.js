@@ -171,6 +171,7 @@ router.get('/car/search', async (req, res) => {
 
         if (sort === 'price_asc') orderClause = [['rent_fee', 'ASC']];
         else if (sort === 'price_desc') orderClause = [['rent_fee', 'DESC']];
+        else if (sort === 'top10') orderClause = [['is_top10', 'DESC'], ['created_at', 'DESC']];
 
         const limit = 12;
         const { count, rows: cars } = await Car.findAndCountAll({
