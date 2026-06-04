@@ -232,23 +232,24 @@ router.get('/rss', async (req, res) => {
     }
 });
 
-// Sitemap 캐싱을 위한 메모리 변수 (서버 부하 경감 및 속도 향상)
-let cachedSitemap = null;
-let sitemapCacheTime = 0;
+// Sitemap 캐싱을 위한 메모리 맵 (도메인별 캐시 분리 및 속도 향상)
+const sitemapCacheMap = new Map();
 const SITEMAP_CACHE_TTL = 3 * 60 * 60 * 1000; // 3시간 캐시 유지
 
 // 동적 Sitemap.xml 생성
 router.get('/sitemap.xml', async (req, res) => {
+    const host = req.get('host');
     const now = Date.now();
+    const cache = sitemapCacheMap.get(host);
     
     // 캐시가 유효한 경우 캐싱된 데이터 반환
-    if (cachedSitemap && (now - sitemapCacheTime < SITEMAP_CACHE_TTL)) {
+    if (cache && (now - cache.time < SITEMAP_CACHE_TTL)) {
         res.set('Content-Type', 'application/xml');
-        return res.send(cachedSitemap);
+        return res.send(cache.xml);
     }
 
     try {
-        const baseUrl = 'https://caron.it.kr';
+        const baseUrl = `${req.protocol}://${host}`;
         
         // 정적 페이지 리스트
         const staticPages = [
@@ -306,8 +307,7 @@ router.get('/sitemap.xml', async (req, res) => {
         xml += '\n</urlset>';
 
         // 캐시 업데이트
-        cachedSitemap = xml;
-        sitemapCacheTime = now;
+        sitemapCacheMap.set(host, { xml, time: now });
 
         res.set('Content-Type', 'application/xml');
         res.send(xml);
@@ -315,9 +315,10 @@ router.get('/sitemap.xml', async (req, res) => {
         console.error('Sitemap Generation Error:', err);
         
         // DB 에러 발생 시 만료된 캐시가 있다면 서빙하여 사이트 가용성을 유지
-        if (cachedSitemap) {
+        const expiredCache = sitemapCacheMap.get(host);
+        if (expiredCache) {
             res.set('Content-Type', 'application/xml');
-            return res.send(cachedSitemap);
+            return res.send(expiredCache.xml);
         }
         res.status(500).send('Error generating sitemap');
     }
