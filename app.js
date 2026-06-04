@@ -16,6 +16,10 @@ const PORT = process.env.PORT || 3000;
 // DB 연결
 connectDB();
 
+// 모델 관계 정의
+const Car = require('./models/Car');
+Car.belongsTo(Upload, { foreignKey: 'thumbnail_id', as: 'Thumbnail' });
+
 // 기본 미들웨어
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

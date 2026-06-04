@@ -38,8 +38,8 @@
                         <% top10Cars.forEach(car=> { %>
                             <div class="swiper-slide vehicle-card">
                                 <div class="card-img">
-                                    <% if (car.thumbnail_id) { %>
-                                        <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %> 장기렌트 리스" onerror="this.onerror=null; this.src='/images/default_car.webp';">
+                                    <% if (car.getDataValue('thumbnail_url')) { %>
+                                        <img src="<%= car.getDataValue('thumbnail_url') %>" alt="<%= car.name_ko %> 장기렌트 리스" onerror="this.onerror=null; this.src='/images/default_car.webp';">
                                     <% } else { %>
                                         <img src="/images/default_car.webp" alt="이미지 준비중">
                                     <% } %>
@@ -92,8 +92,8 @@
                 <% hotCars.forEach(car => { %>
                     <div class="hot-deal-card">
                         <div class="card-img">
-                            <% if (car.thumbnail_id) { %>
-                                <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %> 핫딜" onerror="this.onerror=null; this.src='/images/default_car.webp';">
+                            <% if (car.getDataValue('thumbnail_url')) { %>
+                                <img src="<%= car.getDataValue('thumbnail_url') %>" alt="<%= car.name_ko %> 핫딜" onerror="this.onerror=null; this.src='/images/default_car.webp';">
                             <% } else { %>
                                 <img src="/images/default_car.webp" alt="이미지 준비중">
                             <% } %>

@@ -5,6 +5,7 @@ const { encrypt } = require('../utils/crypto');
 const Car = require('../models/Car');
 const Inquiry = require('../models/Inquiry');
 const Upload = require('../models/Upload');
+const { getDirectImageUrl } = require('../utils/helpers');
 
 // 실시간 검색 추천 API
 router.get('/cars/suggest', async (req, res) => {
@@ -135,10 +136,16 @@ router.get('/cars/search/more', async (req, res) => {
 
         const { count, rows: cars } = await Car.findAndCountAll({
             where: whereClause,
+            include: [{ model: Upload, as: 'Thumbnail' }],
             order: orderClause,
             limit: limit,
             offset: skip
         });
+
+        for (let car of cars) {
+            const path = car.Thumbnail ? car.Thumbnail.file_path : null;
+            car.setDataValue('thumbnail_url', getDirectImageUrl(path));
+        }
 
         const hasMore = count > (skip + limit);
 

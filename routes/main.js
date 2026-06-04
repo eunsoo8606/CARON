@@ -8,6 +8,8 @@ const Admin = require('../models/Admin');
 const Upload = require('../models/Upload');
 const Car = require('../models/Car');
 const Review = require('../models/Review');
+const { getDirectImageUrl } = require('../utils/helpers');
+
 
 
 // 메인 페이지
@@ -44,16 +46,28 @@ router.get('/', async (req, res) => {
         // 인기 TOP 10 차량 조회
         const top10Cars = await Car.findAll({
             where: { is_top10: 1, is_visible: 1 },
+            include: [{ model: Upload, as: 'Thumbnail' }],
             order: [['created_at', 'DESC']],
             limit: 10
         });
 
+        for (let car of top10Cars) {
+            const path = car.Thumbnail ? car.Thumbnail.file_path : null;
+            car.setDataValue('thumbnail_url', getDirectImageUrl(path));
+        }
+
         // 오늘의 핫딜 차량 조회
         const hotCars = await Car.findAll({
             where: { is_hot: 1, is_visible: 1 },
+            include: [{ model: Upload, as: 'Thumbnail' }],
             order: [['updated_at', 'DESC']],
             limit: 4
         });
+
+        for (let car of hotCars) {
+            const path = car.Thumbnail ? car.Thumbnail.file_path : null;
+            car.setDataValue('thumbnail_url', getDirectImageUrl(path));
+        }
         
         // 고객 리뷰 조회
         const reviews = await Review.findAll({
@@ -161,9 +175,15 @@ router.get('/car/search', async (req, res) => {
         const limit = 12;
         const { count, rows: cars } = await Car.findAndCountAll({
             where: whereClause,
+            include: [{ model: Upload, as: 'Thumbnail' }],
             order: orderClause,
             limit: limit
         });
+
+        for (let car of cars) {
+            const path = car.Thumbnail ? car.Thumbnail.file_path : null;
+            car.setDataValue('thumbnail_url', getDirectImageUrl(path));
+        }
 
         const hasMore = count > limit;
 
