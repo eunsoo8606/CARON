@@ -311,15 +311,52 @@ router.post('/inquiries/:id/delete', authAdmin, async (req, res) => {
 
 // 차량 관리
 router.get('/cars', authAdmin, async (req, res) => {
+    const { category, brand, q } = req.query;
     try {
-        const cars = await Car.findAll({ order: [['created_at', 'DESC']] });
+        let whereClause = {};
+
+        if (category === 'domestic') {
+            whereClause.is_domestic = 1;
+        } else if (category === 'imported') {
+            whereClause.is_domestic = 0;
+        }
+
+        if (brand) {
+            whereClause.brand = brand;
+        }
+
+        if (q) {
+            whereClause[Op.or] = [
+                { name_ko: { [Op.like]: `%${q}%` } },
+                { brand: { [Op.like]: `%${q}%` } }
+            ];
+        }
+
+        const cars = await Car.findAll({ 
+            where: whereClause,
+            order: [['created_at', 'DESC']] 
+        });
+
+        // 비동기 Ajax 검색 요청 시 HTML 부분만 렌더링하여 반환
+        if (req.query.ajax === '1') {
+            return res.render('admin/cars/_car_rows', { cars, layout: false }, (err, html) => {
+                if (err) {
+                    console.error('Ajax EJS Render Error:', err);
+                    return res.status(500).json({ success: false, message: 'Render error' });
+                }
+                res.json({ success: true, html });
+            });
+        }
+
         res.render('admin/cars/list', {
             layout: 'layout/admin_base',
             adminName: req.admin.name,
             currentPath: '/console/cars',
-            cars
+            cars,
+            query: req.query || {}
         });
     } catch (err) {
+        console.error(err);
         res.status(500).send('Server Error');
     }
 });
@@ -349,9 +386,9 @@ router.get('/cars/:id', authAdmin, async (req, res) => {
 
 router.post('/cars/save', authAdmin, upload.single('thumbnail'), async (req, res) => {
     const {
-        id, brand, name_ko, name_en, rent_fee, original_price, discount_rate,
+        id, brand, is_domestic, name_ko, name_en, rent_fee, original_price, discount_rate,
         car_type, fuel_type, is_hot, is_fast_ship, is_visible, hashtags,
-        description, year, capacity, down_payment, period, mileage, is_top10
+        description, year, capacity, down_payment, period, mileage, is_top10, is_inquiry_only
     } = req.body;
 
     try {
@@ -375,6 +412,7 @@ router.post('/cars/save', authAdmin, upload.single('thumbnail'), async (req, res
 
         const carData = {
             brand, name_ko, name_en,
+            is_domestic: is_domestic === '1' ? 1 : 0,
             rent_fee: parseInt(String(rent_fee || '0').replace(/,/g, '')) || 0,
             original_price: parseInt(String(original_price || '0').replace(/,/g, '')) || 0,
             discount_rate: parseFloat(discount_rate) || 0,
@@ -383,6 +421,7 @@ router.post('/cars/save', authAdmin, upload.single('thumbnail'), async (req, res
             is_visible: is_visible === '1' ? 1 : 0,
             is_hot: is_hot === '1' ? 1 : 0,
             is_top10: is_top10 === '1' ? 1 : 0,
+            is_inquiry_only: is_inquiry_only === '1' ? 1 : 0,
             hashtags: hashtags || '',
             year, capacity, down_payment, period, mileage,
             description: description || ''

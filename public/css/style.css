@@ -244,7 +244,7 @@ img { max-width: 100%; display: block; }
 }
 
 .vehicle-swiper {
-    height: 320px; /* 1개의 가로 행(Row)만 보이도록 높이 조정 */
+    height: 340px; /* 1개의 가로 행(Row)만 보이도록 높이 조정, hover 애니메이션 공간 확보 */
     padding: 10px 0;
     overflow: hidden;
 }

@@ -15,15 +15,17 @@
                 <h3 class="card-title"><i class="fas fa-info-circle"></i> 기본 정보</h3>
                 
                 <div class="form-group">
+                    <label>대분류 (국산/수입) <span class="required">*</span></label>
+                    <select name="is_domestic" id="formIsDomestic" class="form-control" required>
+                        <option value="1" <%= (car === null || car.is_domestic === 1) ? 'selected' : '' %>>국산 (국내)</option>
+                        <option value="0" <%= car && car.is_domestic === 0 ? 'selected' : '' %>>수입 (국외)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label>브랜드 <span class="required">*</span></label>
-                    <select name="brand" class="form-control" required>
+                    <select name="brand" id="formBrand" class="form-control" required>
                         <option value="">브랜드를 선택하세요</option>
-                        <option value="현대" <%= car && car.brand === '현대' ? 'selected' : '' %>>현대</option>
-                        <option value="기아" <%= car && car.brand === '기아' ? 'selected' : '' %>>기아</option>
-                        <option value="르노코리아" <%= car && car.brand === '르노코리아' ? 'selected' : '' %>>르노코리아</option>
-                        <option value="KGM" <%= car && car.brand === 'KGM' ? 'selected' : '' %>>KGM</option>
-                        <option value="쉐보레" <%= car && car.brand === '쉐보레' ? 'selected' : '' %>>쉐보레</option>
-                        <option value="제네시스" <%= car && car.brand === '제네시스' ? 'selected' : '' %>>제네시스</option>
                     </select>
                 </div>
 
@@ -176,6 +178,11 @@
                         <span class="checkmark"></span>
                         <strong>TOP 10 차량</strong> (인기 랭킹 표시)
                     </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="is_inquiry_only" value="1" <%= car && car.is_inquiry_only ? 'checked' : '' %>>
+                        <span class="checkmark"></span>
+                        <strong>상담 문의 전용</strong> (금액 대신 '상담문의'로 노출)
+                    </label>
                 </div>
 
                 <div class="form-group mt-4">
@@ -193,3 +200,33 @@
 </form>
 
 <script src="/js/admin/car-form.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const domesticBrands = ['현대', '기아', '르노코리아', 'KGM', '쉐보레', '제네시스'];
+    const importedBrands = ['벤츠', 'BMW', '아우디', '폭스바겐', '푸조', '테슬라', '토요타', '미니', '볼보', '렉서스', 'Jeep', '폴스타', '캐딜락'];
+
+    const domesticSelect = document.getElementById('formIsDomestic');
+    const brandSelect = document.getElementById('formBrand');
+    const savedBrand = '<%= car ? car.brand : "" %>';
+
+    function updateBrandOptions() {
+        const isDomestic = domesticSelect.value === '1';
+        const brands = isDomestic ? domesticBrands : importedBrands;
+
+        brandSelect.innerHTML = '<option value="">브랜드를 선택하세요</option>';
+        brands.sort().forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            if (brand === savedBrand) {
+                option.selected = true;
+            }
+            brandSelect.appendChild(option);
+        });
+    }
+
+    domesticSelect.addEventListener('change', updateBrandOptions);
+    updateBrandOptions(); // 초기 데이터 바인딩
+});
+</script>

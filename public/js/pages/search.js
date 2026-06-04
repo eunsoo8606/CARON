@@ -126,4 +126,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 100); // 페이지 렌더링 후 약간의 지연 후 실행
         }
     }
+
+    // 8. 차량 카드 클릭 시 문의하기 모달 팝업 연결 (이벤트 위임 적용)
+    const carGrid = document.querySelector('.car-grid');
+    if (carGrid) {
+        carGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.car-card');
+            if (!card) return;
+
+            const brand = card.getAttribute('data-brand') || '';
+            const name = card.getAttribute('data-name') || '';
+            const fullName = brand ? `[${brand}] ${name}` : name;
+
+            const inquiryModal = document.getElementById('inquiryModal');
+            if (inquiryModal) {
+                const carInput = inquiryModal.querySelector('input[name="car_model"]');
+                if (carInput) {
+                    carInput.value = fullName;
+                }
+                
+                // 모달 표시 및 배경 스크롤 방지
+                inquiryModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    }
 });

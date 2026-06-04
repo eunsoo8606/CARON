@@ -4,6 +4,7 @@ const { sequelize } = require('../config/database');
 const Car = sequelize.define('Car', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     brand: { type: DataTypes.STRING(100), allowNull: false },
+    is_domestic: { type: DataTypes.TINYINT(1), allowNull: false, defaultValue: 1 },
     name_ko: { type: DataTypes.STRING(200), allowNull: false },
     name_en: { type: DataTypes.STRING(200) },
     rent_fee: { type: DataTypes.INTEGER, defaultValue: 0 },
@@ -15,6 +16,7 @@ const Car = sequelize.define('Car', {
     is_visible: { type: DataTypes.TINYINT(1), defaultValue: 1 },
     is_hot: { type: DataTypes.TINYINT(1), defaultValue: 0 },
     is_top10: { type: DataTypes.TINYINT(1), defaultValue: 0 },
+    is_inquiry_only: { type: DataTypes.TINYINT(1), defaultValue: 0 },
     thumbnail_id: { type: DataTypes.INTEGER },
     hashtags: { type: DataTypes.TEXT },
     description: { type: DataTypes.TEXT },

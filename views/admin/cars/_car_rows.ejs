@@ -1,0 +1,67 @@
+<% if (cars && cars.length > 0) { %>
+    <% cars.forEach(car => { %>
+        <tr>
+            <td>
+                <%= car.id %>
+            </td>
+            <td>
+                <div class="car-thumb">
+                    <% if (car.thumbnail_id) { %>
+                        <img src="/api/image/<%= car.thumbnail_id %>" alt="thumbnail" loading="lazy">
+                    <% } else { %>
+                        <div class="no-img">No Img</div>
+                    <% } %>
+                </div>
+            </td>
+            <td>
+                <span class="badge-brand text-nowrap">
+                    <%= car.brand %>
+                </span>
+            </td>
+            <td class="text-left">
+                <div class="car-name-cell" style="display: flex; align-items: center; gap: 10px; justify-content: flex-start;">
+                    <strong style="font-size: 16px; color: #333;">
+                        <%= car.name_ko %>
+                    </strong>
+                    <div style="display: flex; gap: 5px;">
+                        <% if (car.is_hot) { %><span class="badge-hot" style="margin: 0;">HOT</span><% } %>
+                        <% if (car.is_fast_ship) { %><span class="badge-fast" style="margin: 0;">빠른출고</span><% } %>
+                    </div>
+                </div>
+            </td>
+            <td class="text-right">
+                <%= (car.original_price || 0).toLocaleString() %>원
+            </td>
+            <td class="text-right">
+                <strong style="color: #002b5c;">
+                    <%= (car.rent_fee || 0).toLocaleString() %>원
+                </strong>
+            </td>
+            <td>
+                <span style="color: #f44336; font-weight: 800;">
+                    <%= car.discount_rate %>%
+                </span>
+            </td>
+            <td>
+                <% if (car.is_visible) { %>
+                    <span class="status-active">노출중</span>
+                <% } else { %>
+                    <span class="status-inactive">미노출</span>
+                <% } %>
+            </td>
+            <td>
+                <%= car.created_at ? car.created_at.toISOString().split('T')[0] : '-' %>
+            </td>
+            <td>
+                <div class="action-btns">
+                    <a href="/console/cars/<%= car.id %>" class="btn-edit" title="수정"><i class="fas fa-edit"></i></a>
+                    <button type="button" class="btn-delete" onclick="handleCarDelete(this, <%= car.id %>)" title="삭제"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </td>
+        </tr>
+    <% }); %>
+<% } else { %>
+    <tr>
+        <td colspan="10" class="empty-row">등록된 차량이 없습니다.</td>
+    </tr>
+<% } %>

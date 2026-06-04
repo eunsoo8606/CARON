@@ -1,4 +1,4 @@
-<div class="car-card">
+<div class="car-card" data-brand="<%= car.brand || '' %>" data-name="<%= car.name_ko %>">
     <div class="car-image">
         <% if (car.thumbnail_id) { %>
             <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %>" loading="lazy">
@@ -40,7 +40,7 @@
             </span>
             <% if (car.capacity) { %>
                 <span class="spec-badge">
-                    <%= car.capacity %>
+                    <%= String(car.capacity).includes('인승') ? car.capacity : car.capacity + '인승' %>
                 </span>
                 <% } %>
         </div>
@@ -53,36 +53,47 @@
             </span>
         </div>
 
-        <div class="car-price-box premium-price">
-            <div class="price-main">
-                <span class="price-label">월</span>
-                <div class="price-value">
-                    <% if (car.discount_rate> 0) {
-                        const originalRent = Math.floor(car.rent_fee / (1 - (car.discount_rate / 100)));
-                        %>
-                        <div class="rent-discount-wrap">
-                            <span class="before-rent">
-                                <%= originalRent.toLocaleString() %>원
-                            </span>
-                            <div class="after-rent">
-                                <span>
+        <% if (car.is_inquiry_only) { %>
+            <div class="car-price-box premium-price" style="justify-content: center; align-items: center; min-height: 104px; background: #fff5f9; border: 1px solid #ffd3e2; border-radius: 12px; box-sizing: border-box;">
+                <div class="price-main" style="width: 100%; justify-content: center; text-align: center; display: flex; flex-direction: column; gap: 6px; align-items: center;">
+                    <span class="main-val" style="color: var(--primary) !important; font-size: 26px; font-weight: 900; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(222, 31, 127, 0.05); margin: 0; line-height: 1;">상담문의</span>
+                    <span style="font-size: 12px; color: #f14d9e; font-weight: 700; background: rgba(222, 31, 127, 0.06); padding: 3px 12px; border-radius: 50px; display: inline-block; line-height: 1.2;">실시간 최저가 맞춤상담</span>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="car-price-box premium-price">
+                <div class="price-main">
+                    <span class="price-label">월</span>
+                    <div class="price-value">
+                        <% if (car.discount_rate> 0) {
+                            const originalRent = Math.floor(car.rent_fee / (1 - (car.discount_rate / 100)));
+                            %>
+                            <div class="rent-discount-wrap">
+                                <span class="before-rent">
+                                    <%= originalRent.toLocaleString() %>원
+                                </span>
+                                <div class="after-rent">
+                                    <span>
+                                        <%= car.rent_fee.toLocaleString() %>
+                                    </span>
+                                    <span class="price-unit">원~</span>
+                                </div>
+                            </div>
+                            <% } else { %>
+                                <span class="main-val">
                                     <%= car.rent_fee.toLocaleString() %>
                                 </span>
                                 <span class="price-unit">원~</span>
-                            </div>
-                        </div>
-                        <% } else { %>
-                            <span class="main-val">
-                                <%= car.rent_fee.toLocaleString() %>
-                            </span>
-                            <span class="price-unit">원~</span>
-                            <% } %>
+                                <% } %>
+                    </div>
+                </div>
+                <div class="price-criteria">
+                    선수금 <%= String(car.down_payment).includes('%') ? car.down_payment : car.down_payment + '%' %>, 
+                    <%= String(car.period).includes('개월') ? car.period : car.period + '개월' %>, 
+                    <%= String(car.mileage).includes('km') ? car.mileage : '연 ' + car.mileage + '만km' %> 기준
                 </div>
             </div>
-            <div class="price-criteria">
-                선수금 <%= car.down_payment %>, <%= car.period %>, <%= car.mileage %> 기준
-            </div>
-        </div>
+        <% } %>
         <div class="car-footer">
             <% if (car.is_fast_ship) { %><span class="tag">빠른출고</span>
                 <% } %>

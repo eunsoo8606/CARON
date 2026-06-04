@@ -34,8 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 spaceBetween: 30
             },
             1024: {
-                slidesPerView: 3,
-                spaceBetween: 30
+                slidesPerView: 4,
+                spaceBetween: 30,
+                centeredSlides: false // 데스크탑 4열 화면에서 카드가 한눈에 정렬되어 보이도록 센터 정렬 비활성화
             }
         }
     });

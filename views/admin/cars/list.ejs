@@ -8,7 +8,38 @@
     </a>
 </div>
 
-<!-- Search & Filter Area (Optional for now) -->
+<!-- Search & Filter Area -->
+<div class="content-card mb-4" style="padding: 20px;">
+    <form id="filterForm" method="GET" action="/console/cars" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+        <div class="form-group" style="flex: 0 1 180px; margin-bottom: 0;">
+            <label for="category" style="display:block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #555;">대분류</label>
+            <select name="category" id="category" class="form-control" style="width: 100%; height: 40px; padding: 0 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; background-color: #fff;">
+                <option value="">전체 대분류</option>
+                <option value="domestic" <%= (typeof query !== 'undefined' && query.category === 'domestic') ? 'selected' : '' %>>국산 (국내)</option>
+                <option value="imported" <%= (typeof query !== 'undefined' && query.category === 'imported') ? 'selected' : '' %>>수입 (국외)</option>
+            </select>
+        </div>
+        <div class="form-group" style="flex: 0 1 180px; margin-bottom: 0;">
+            <label for="brand" style="display:block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #555;">브랜드</label>
+            <select name="brand" id="brand" class="form-control" style="width: 100%; height: 40px; padding: 0 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; background-color: #fff;">
+                <option value="">전체 브랜드</option>
+            </select>
+        </div>
+        <div class="form-group" style="flex: 1 1 250px; min-width: 150px; margin-bottom: 0;">
+            <label for="q" style="display:block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #555;">차량명 검색</label>
+            <input type="text" name="q" id="q" class="form-control" placeholder="모델명 또는 브랜드를 입력하세요" value="<%= (typeof query !== 'undefined' && query.q) ? query.q : '' %>" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #ddd; border-radius: 6px; outline: none; box-sizing: border-box; background-color: #fff;">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn-primary-admin" style="height: 40px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; font-weight: 600; border-radius: 6px; color: #fff; background-color: var(--admin-primary) !important;">
+                <i class="fas fa-search"></i> 검색
+            </button>
+            <a href="/console/cars" style="height: 40px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; background: #e0e0e0; color: #333; border-radius: 6px; font-weight: 600; font-size: 14px; border: 1px solid #ccc; box-sizing: border-box;">
+                초기화
+            </a>
+        </div>
+    </form>
+</div>
+
 <div class="content-card mb-4">
     <div class="table-responsive">
         <table class="admin-table">
@@ -26,75 +57,8 @@
                     <th width="130">관리</th>
                 </tr>
             </thead>
-            <tbody>
-                <% if (cars && cars.length> 0) { %>
-                    <% cars.forEach(car=> { %>
-                        <tr>
-                            <td>
-                                <%= car.id %>
-                            </td>
-                            <td>
-                                <div class="car-thumb">
-                                    <% if (car.thumbnail_id) { %>
-                                        <img src="/api/image/<%= car.thumbnail_id %>" alt="thumbnail" loading="lazy">
-                                        <% } else { %>
-                                            <div class="no-img">No Img</div>
-                                            <% } %>
-                                </div>
-                            </td>
-                            <td><span class="badge-brand text-nowrap">
-                                    <%= car.brand %>
-                                </span></td>
-                            <td class="text-left">
-                                <div class="car-name-cell"
-                                    style="display: flex; align-items: center; gap: 10px; justify-content: flex-start;">
-                                    <strong style="font-size: 16px; color: #333;">
-                                        <%= car.name_ko %>
-                                    </strong>
-                                    <div style="display: flex; gap: 5px;">
-                                        <% if (car.is_hot) { %><span class="badge-hot" style="margin: 0;">HOT</span>
-                                            <% } %>
-                                                <% if (car.is_fast_ship) { %><span class="badge-fast"
-                                                        style="margin: 0;">빠른출고</span>
-                                                    <% } %>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="text-right">
-                                <%= (car.original_price || 0).toLocaleString() %>원
-                            </td>
-                            <td class="text-right"><strong style="color: #002b5c;">
-                                    <%= (car.rent_fee || 0).toLocaleString() %>원
-                                </strong></td>
-                            <td><span style="color: #f44336; font-weight: 800;">
-                                    <%= car.discount_rate %>%
-                                </span></td>
-                            <td>
-                                <% if (car.is_visible) { %>
-                                    <span class="status-active">노출중</span>
-                                    <% } else { %>
-                                        <span class="status-inactive">미노출</span>
-                                        <% } %>
-                            </td>
-                            <td>
-                                <%= car.created_at ? car.created_at.toISOString().split('T')[0] : '-' %>
-                            </td>
-                            <td>
-                                <div class="action-btns">
-                                    <a href="/console/cars/<%= car.id %>" class="btn-edit" title="수정"><i
-                                            class="fas fa-edit"></i></a>
-                                    <button type="button" class="btn-delete"
-                                        onclick="handleCarDelete(this, <%= car.id %>)" title="삭제"><i
-                                            class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        <% }); %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="10" class="empty-row">등록된 차량이 없습니다.</td>
-                                </tr>
-                                <% } %>
+            <tbody id="carTableBody">
+                <%- include('_car_rows', { cars: cars }) %>
             </tbody>
         </table>
     </div>
@@ -108,3 +72,88 @@
         text-align: center;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 국산/수입 브랜드 목록 정의 (DB 유니크 데이터 기준 정렬)
+    const domesticBrands = ['현대', '기아', '르노코리아', 'KGM', '쉐보레', '제네시스'];
+    const importedBrands = ['벤츠', 'BMW', '아우디', '폭스바겐', '푸조', '테슬라', '토요타', '미니', '볼보', '렉서스', 'Jeep', '폴스타', '캐딜락'];
+    
+    const categorySelect = document.getElementById('category');
+    const brandSelect = document.getElementById('brand');
+    const selectedBrand = '<%= (typeof query !== "undefined" && query.brand) ? query.brand : "" %>';
+
+    function updateBrandOptions() {
+        const category = categorySelect.value;
+        let brands = [];
+        
+        if (category === 'domestic') {
+            brands = domesticBrands;
+        } else if (category === 'imported') {
+            brands = importedBrands;
+        } else {
+            brands = [...domesticBrands, ...importedBrands];
+        }
+
+        // 기존 브랜드 목록 비우기
+        brandSelect.innerHTML = '<option value="">전체 브랜드</option>';
+        
+        // 가나다순 정렬 후 옵션 삽입
+        brands.sort().forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            if (brand === selectedBrand) {
+                option.selected = true;
+            }
+            brandSelect.appendChild(option);
+        });
+    }
+
+    categorySelect.addEventListener('change', updateBrandOptions);
+    updateBrandOptions(); // 초기 페이지 로드 시 바인딩
+
+    // 비동기(Ajax) 검색 처리
+    const filterForm = document.getElementById('filterForm');
+    const carTableBody = document.getElementById('carTableBody');
+
+    if (filterForm && carTableBody) {
+        filterForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // 기본 새로고침 폼 전송 차단
+
+            const formData = new FormData(filterForm);
+            const params = new URLSearchParams();
+
+            for (const [key, value] of formData.entries()) {
+                if (value) params.append(key, value);
+            }
+            params.append('ajax', '1');
+
+            // 로딩 피드백 표시
+            carTableBody.innerHTML = '<tr><td colspan="10" class="empty-row"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> 검색 중...</td></tr>';
+
+            try {
+                const response = await fetch(`/console/cars?${params.toString()}`);
+                if (!response.ok) {
+                    throw new Error(`서버 응답 오류 (상태코드: ${response.status})`);
+                }
+                const data = await response.json();
+
+                if (data.success) {
+                    carTableBody.innerHTML = data.html;
+                    
+                    // 주소창 URL 업데이트 (새로고침 없이 상태 유지)
+                    params.delete('ajax');
+                    const newUrl = `/console/cars?${params.toString()}`;
+                    window.history.pushState({ path: newUrl }, '', newUrl);
+                } else {
+                    carTableBody.innerHTML = '<tr><td colspan="10" class="empty-row" style="color: #ff4d4d; font-weight: 600;">데이터를 불러오는 데 실패했습니다.</td></tr>';
+                }
+            } catch (error) {
+                console.error('Ajax Search Error:', error);
+                carTableBody.innerHTML = `<tr><td colspan="10" class="empty-row" style="color: #ff4d4d; font-weight: 600;">서버 통신 오류가 발생했습니다. (${error.message})</td></tr>`;
+            }
+        });
+    }
+});
+</script>

@@ -53,8 +53,13 @@
                                     <h3 class="car-name">
                                         [<%= car.brand %>] <%= car.name_ko %>
                                     </h3>
-                                    <p class="car-price">
-                                        월 <%= car.rent_fee ? car.rent_fee.toLocaleString() : '0' %>원~
+                                    <p class="car-price" style="display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                                        <% if (car.is_inquiry_only) { %>
+                                            <span style="color: var(--primary) !important; font-weight: 850; font-size: 20px; line-height: 1;">상담문의</span>
+                                            <span style="font-size: 11px; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--primary), #f14d9e); padding: 2px 8px; border-radius: 4px; letter-spacing: -0.2px; line-height: 1.3; height: fit-content;">ASK</span>
+                                        <% } else { %>
+                                            월 <%= car.rent_fee ? car.rent_fee.toLocaleString() : '0' %>원~
+                                        <% } %>
                                     </p>
                                 </div>
                             </div>
@@ -99,7 +104,14 @@
                             <div class="price-group">
                                 <span class="rent-label">월 렌트료</span>
                                 <div class="price-box">
-                                    <span class="price">월 <%= car.rent_fee ? car.rent_fee.toLocaleString() : '0' %>원~</span>
+                                    <% if (car.is_inquiry_only) { %>
+                                        <span class="price" style="color: var(--primary) !important; font-size: 24px; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; line-height: 1;">
+                                            상담문의
+                                            <span style="font-size: 12px; font-weight: 700; color: #f14d9e; background: rgba(222, 31, 127, 0.06); padding: 2px 8px; border-radius: 4px; letter-spacing: -0.2px; line-height: 1.2;">특가</span>
+                                        </span>
+                                    <% } else { %>
+                                        <span class="price">월 <%= car.rent_fee ? car.rent_fee.toLocaleString() : '0' %>원~</span>
+                                    <% } %>
                                 </div>
                             </div>
                             <button class="btn-deal-inquiry" onclick="location.href='/car/search?q=<%= encodeURIComponent(car.name_ko) %>'">견적 확인하기</button>
