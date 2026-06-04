@@ -65,26 +65,50 @@ router.post('/inquiry', async (req, res) => {
     }
 });
 
+// 이미지 경로 인메모리 캐시 선언 (강력 새로고침 시 발생하는 폭발적인 이미지 요청의 DB 부하 차단)
+const imagePathCache = new Map();
+
 // 이미지 서빙 API
 router.get('/image/:id', async (req, res) => {
+    const imageId = req.params.id;
+
+    // 캐시 히트 시 DB 조회 없이 즉시 리다이렉트
+    if (imagePathCache.has(imageId)) {
+        const cachedPath = imagePathCache.get(imageId);
+        if (cachedPath) {
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return res.redirect(cachedPath);
+        }
+        return res.status(404).send('Image not found');
+    }
+
     try {
-        const uploadItem = await Upload.findByPk(req.params.id);
-        if (!uploadItem) return res.status(404).send('Image not found');
+        const uploadItem = await Upload.findByPk(imageId);
+        if (!uploadItem) {
+            imagePathCache.set(imageId, null); // 404 부정적 캐싱
+            return res.status(404).send('Image not found');
+        }
 
         // 브라우저 캐싱 적용 (서버 DB 커넥션 부하 방지 - 1일 유지)
         res.setHeader('Cache-Control', 'public, max-age=86400');
 
         if (uploadItem.file_path) {
+            let targetPath = '';
             // 외부 링크(http 또는 https)인 경우 그대로 리다이렉트
             if (uploadItem.file_path.startsWith('http://') || uploadItem.file_path.startsWith('https://')) {
-                return res.redirect(uploadItem.file_path);
+                targetPath = uploadItem.file_path;
+            } else {
+                // 로컬 파일 경로인 경우에만 세그먼트별 안전 인코딩
+                targetPath = uploadItem.file_path.split('/').map(segment => encodeURIComponent(segment)).join('/');
             }
-            
-            // 로컬 파일 경로인 경우에만 세그먼트별 안전 인코딩
-            const encodedPath = uploadItem.file_path.split('/').map(segment => encodeURIComponent(segment)).join('/');
-            return res.redirect(encodedPath);
+
+            if (targetPath) {
+                imagePathCache.set(imageId, targetPath); // 캐시에 경로 저장
+                return res.redirect(targetPath);
+            }
         }
 
+        imagePathCache.set(imageId, null);
         return res.status(404).send('Image data not found');
     } catch (err) {
         console.error('Image Serving Error:', err);
