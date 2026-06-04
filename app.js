@@ -3,6 +3,7 @@ const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 require('dotenv').config();
 
 const { connectDB } = require('./config/database');
@@ -21,6 +22,7 @@ const Car = require('./models/Car');
 Car.belongsTo(Upload, { foreignKey: 'thumbnail_id', as: 'Thumbnail' });
 
 // 기본 미들웨어
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

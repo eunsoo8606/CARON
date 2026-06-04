@@ -241,7 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // 8. 초기 로드 시 필터 동기화 및 필요시 스크롤
     syncFiltersFromUrl();
     if (getParams().toString()) {
-        setTimeout(scrollToResults, 150);
+        window.addEventListener('load', () => {
+            setTimeout(scrollToResults, 100);
+        });
+        setTimeout(scrollToResults, 300);
     }
 
     // 9. 차량 카드 클릭 시 문의하기 모달 팝업 연결 (이벤트 위임 적용)
