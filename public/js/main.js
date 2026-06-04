@@ -238,6 +238,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     modalPlannerName.innerText = '';
                 }
 
+                // 버튼에 data-car-name 속성이 있으면 모달의 관심차종 input에 주입
+                const carName = btn.getAttribute('data-car-name');
+                const carInput = inquiryModal.querySelector('input[name="car_model"]');
+                if (carInput) {
+                    carInput.value = carName || '';
+                }
+
                 inquiryModal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             });

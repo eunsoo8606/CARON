@@ -114,7 +114,7 @@
                                     <% } %>
                                 </div>
                             </div>
-                            <button class="btn-deal-inquiry" onclick="location.href='/car/search?q=<%= encodeURIComponent(car.name_ko) %>'">견적 확인하기</button>
+                            <button type="button" class="btn-deal-inquiry btn-quick-inquiry" data-car-name="[<%= car.brand %>] <%= car.name_ko %>">견적 확인하기</button>
                         </div>
                     </div>
                 <% }); %>
