@@ -15,7 +15,7 @@ const sequelize = new Sequelize(
         logging: false, // 콘솔에 SQL 로그가 너무 많이 찍히는 것을 방지
         pool: {
             max: 15,
-            min: 0,
+            min: 2,
             acquire: 30000,
             idle: 5000
         },

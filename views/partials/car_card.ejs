@@ -1,7 +1,7 @@
 <div class="car-card" data-brand="<%= car.brand || '' %>" data-name="<%= car.name_ko %>">
     <div class="car-image">
         <% if (car.thumbnail_id) { %>
-            <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %>" loading="lazy">
+            <img src="/api/image/<%= car.thumbnail_id %>" alt="<%= car.name_ko %>" loading="lazy" onerror="this.onerror=null; this.src='/images/default_car.webp';">
             <% } else { %>
                 <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070" alt="Car Image"
                     loading="lazy">
