@@ -154,7 +154,10 @@ router.get('/cars/search/more', async (req, res) => {
         let orderClause = [['created_at', 'DESC']];
         if (sort === 'price_asc') orderClause = [['rent_fee', 'ASC']];
         else if (sort === 'price_desc') orderClause = [['rent_fee', 'DESC']];
-        else if (sort === 'top10') orderClause = [['is_top10', 'DESC'], ['created_at', 'DESC']];
+        else if (sort === 'top10') {
+            whereClause.is_top10 = 1;
+            orderClause = [['order_index', 'ASC'], ['created_at', 'DESC']];
+        }
 
         const limit = 12;
         const skip = parseInt(offset) || 0;

@@ -186,6 +186,11 @@
                 </div>
 
                 <div class="form-group mt-4">
+                    <label>정렬 순번</label>
+                    <input type="number" name="order_index" class="form-control" value="<%= car ? car.order_index : 9999 %>" placeholder="낮은 숫자일수록 먼저 노출됩니다 (기본값: 9999)">
+                </div>
+
+                <div class="form-group mt-4">
                     <label>해쉬태그</label>
                     <textarea name="hashtags" class="form-control" rows="2" placeholder="콤마(,)로 구분하여 입력 (예: 인기차종, 가성비, 패밀리카)"><%= car ? car.hashtags : '' %></textarea>
                 </div>

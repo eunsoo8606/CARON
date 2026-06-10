@@ -25,7 +25,8 @@ const Car = sequelize.define('Car', {
     down_payment: { type: DataTypes.STRING(20) },   // 선수금 (예: 30%)
     period: { type: DataTypes.STRING(20) },         // 계약기간 (예: 36개월)
     mileage: { type: DataTypes.STRING(20) },        // 주행거리 (예: 연 2만km)
-    view_count: { type: DataTypes.INTEGER, defaultValue: 0 }
+    view_count: { type: DataTypes.INTEGER, defaultValue: 0 },
+    order_index: { type: DataTypes.INTEGER, defaultValue: 9999 }
 }, {
     tableName: 'Cars',
     timestamps: true,

@@ -25,9 +25,20 @@
                 <option value="">전체 브랜드</option>
             </select>
         </div>
+        <div class="form-group" style="flex: 0 1 180px; margin-bottom: 0;">
+            <label for="tag" style="display:block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #555;">마케팅 태그</label>
+            <select name="tag" id="tag" class="form-control" style="width: 100%; height: 40px; padding: 0 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; background-color: #fff;">
+                <option value="">전체 태그</option>
+                <option value="fast_ship" <%= (typeof query !== 'undefined' && query.tag === 'fast_ship') ? 'selected' : '' %>>빠른출고</option>
+                <option value="hot" <%= (typeof query !== 'undefined' && query.tag === 'hot') ? 'selected' : '' %>>HOT</option>
+                <option value="top10" <%= (typeof query !== 'undefined' && query.tag === 'top10') ? 'selected' : '' %>>TOP 10</option>
+                <option value="inquiry_only" <%= (typeof query !== 'undefined' && query.tag === 'inquiry_only') ? 'selected' : '' %>>상담문의 전용</option>
+                <option value="hidden" <%= (typeof query !== 'undefined' && query.tag === 'hidden') ? 'selected' : '' %>>미노출 차량</option>
+            </select>
+        </div>
         <div class="form-group" style="flex: 1 1 250px; min-width: 150px; margin-bottom: 0;">
             <label for="q" style="display:block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #555;">차량명 검색</label>
-            <input type="text" name="q" id="q" class="form-control" placeholder="모델명 또는 브랜드를 입력하세요" value="<%= (typeof query !== 'undefined' && query.q) ? query.q : '' %>" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #ddd; border-radius: 6px; outline: none; box-sizing: border-box; background-color: #fff;">
+            <input type="text" name="q" id="q" class="form-control" placeholder="모델명, 브랜드 또는 태그를 입력하세요" value="<%= (typeof query !== 'undefined' && query.q) ? query.q : '' %>" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #ddd; border-radius: 6px; outline: none; box-sizing: border-box; background-color: #fff;">
         </div>
         <div style="display: flex; gap: 10px;">
             <button type="submit" class="btn-primary-admin" style="height: 40px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none; font-weight: 600; border-radius: 6px; color: #fff; background-color: var(--admin-primary) !important;">

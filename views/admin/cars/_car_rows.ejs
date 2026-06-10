@@ -19,15 +19,26 @@
                 </span>
             </td>
             <td class="text-left">
-                <div class="car-name-cell" style="display: flex; align-items: center; gap: 10px; justify-content: flex-start;">
+                <div class="car-name-cell" style="display: flex; align-items: center; gap: 10px; justify-content: flex-start; margin-bottom: 6px;">
                     <strong style="font-size: 16px; color: #333;">
                         <%= car.name_ko %>
                     </strong>
                     <div style="display: flex; gap: 5px;">
                         <% if (car.is_hot) { %><span class="badge-hot" style="margin: 0;">HOT</span><% } %>
                         <% if (car.is_fast_ship) { %><span class="badge-fast" style="margin: 0;">빠른출고</span><% } %>
+                        <% if (car.is_top10) { %><span class="badge-top10" style="margin: 0;">TOP 10</span><% } %>
+                        <% if (car.is_inquiry_only) { %><span class="badge-inquiry" style="margin: 0;">상담문의</span><% } %>
                     </div>
                 </div>
+                <% if (car.hashtags) { %>
+                    <div class="car-tags" style="font-size: 12px; color: #888; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-start; padding-left: 2px;">
+                        <% car.hashtags.split(',').forEach(tag => { %>
+                            <% if (tag.trim()) { %>
+                                <span style="background: #f1f3f5; padding: 2px 6px; border-radius: 4px; color: #666; font-size: 11px;">#<%= tag.trim() %></span>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                <% } %>
             </td>
             <td class="text-right">
                 <%= (car.original_price || 0).toLocaleString() %>원

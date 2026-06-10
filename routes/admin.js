@@ -311,7 +311,7 @@ router.post('/inquiries/:id/delete', authAdmin, async (req, res) => {
 
 // 차량 관리
 router.get('/cars', authAdmin, async (req, res) => {
-    const { category, brand, q } = req.query;
+    const { category, brand, q, tag } = req.query;
     try {
         let whereClause = {};
 
@@ -325,10 +325,25 @@ router.get('/cars', authAdmin, async (req, res) => {
             whereClause.brand = brand;
         }
 
+        if (tag) {
+            if (tag === 'fast_ship') {
+                whereClause.is_fast_ship = 1;
+            } else if (tag === 'hot') {
+                whereClause.is_hot = 1;
+            } else if (tag === 'top10') {
+                whereClause.is_top10 = 1;
+            } else if (tag === 'inquiry_only') {
+                whereClause.is_inquiry_only = 1;
+            } else if (tag === 'hidden') {
+                whereClause.is_visible = 0;
+            }
+        }
+
         if (q) {
             whereClause[Op.or] = [
                 { name_ko: { [Op.like]: `%${q}%` } },
-                { brand: { [Op.like]: `%${q}%` } }
+                { brand: { [Op.like]: `%${q}%` } },
+                { hashtags: { [Op.like]: `%${q}%` } }
             ];
         }
 
@@ -388,7 +403,8 @@ router.post('/cars/save', authAdmin, upload.single('thumbnail'), async (req, res
     const {
         id, brand, is_domestic, name_ko, name_en, rent_fee, original_price, discount_rate,
         car_type, fuel_type, is_hot, is_fast_ship, is_visible, hashtags,
-        description, year, capacity, down_payment, period, mileage, is_top10, is_inquiry_only
+        description, year, capacity, down_payment, period, mileage, is_top10, is_inquiry_only,
+        order_index
     } = req.body;
 
     try {
@@ -421,15 +437,35 @@ router.post('/cars/save', authAdmin, upload.single('thumbnail'), async (req, res
             is_visible: is_visible === '1' ? 1 : 0,
             is_hot: is_hot === '1' ? 1 : 0,
             is_top10: is_top10 === '1' ? 1 : 0,
-            is_inquiry_only: is_inquiry_only === '1' ? 1 : 0,
+            is_inquiry_only: (is_domestic === '0' || is_inquiry_only === '1') ? 1 : 0,
             hashtags: hashtags || '',
             year, capacity, down_payment, period, mileage,
-            description: description || ''
+            description: description || '',
+            order_index: (order_index && !isNaN(order_index)) ? parseInt(order_index) : 9999
         };
         if (thumbnail_id) carData.thumbnail_id = thumbnail_id;
 
-        if (id) await Car.update(carData, { where: { id } });
-        else await Car.create(carData);
+        if (id) {
+            await Car.update(carData, { where: { id } });
+        } else {
+            await Car.create(carData);
+        }
+
+        // TOP 10 차량 개수 10개 제한 로직 적용
+        if (carData.is_top10 === 1) {
+            const top10Cars = await Car.findAll({
+                where: { is_top10: 1 },
+                order: [['created_at', 'DESC']]
+            });
+            if (top10Cars.length > 10) {
+                const excessCars = top10Cars.slice(10);
+                const excessIds = excessCars.map(c => c.id);
+                await Car.update({ is_top10: 0 }, {
+                    where: { id: excessIds }
+                });
+            }
+        }
+
         res.redirect('/console/cars');
     } catch (err) {
         res.status(500).send('Error saving car');

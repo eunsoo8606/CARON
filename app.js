@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const compression = require('compression');
 require('dotenv').config();
 
-const { connectDB } = require('./config/database');
+const { connectDB, sequelize } = require('./config/database');
 const Admin = require('./models/Admin');
 const Planner = require('./models/Planner');
 const Upload = require('./models/Upload');
@@ -15,7 +15,36 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // DB 연결
-connectDB();
+connectDB().then(async () => {
+    try {
+        // DB 테이블 자동 동기화 (새 컬럼 추가 반영)
+        await sequelize.sync({ alter: true });
+        
+        const Car = require('./models/Car');
+        const top10Cars = await Car.findAll({
+            where: { is_top10: 1 },
+            order: [['created_at', 'DESC']]
+        });
+        if (top10Cars.length > 10) {
+            const excessCars = top10Cars.slice(10);
+            const excessIds = excessCars.map(c => c.id);
+            await Car.update({ is_top10: 0 }, {
+                where: { id: excessIds }
+            });
+            console.log(`[Top10 Sync] 초과된 ${excessIds.length}개 차량의 TOP 10 태그를 해제했습니다. (대상 ID: ${excessIds.join(', ')})`);
+        }
+
+        // 수입차량(is_domestic: 0) 일괄 상담문의전용(is_inquiry_only: 1) 업데이트
+        const [importUpdatedCount] = await Car.update({ is_inquiry_only: 1 }, {
+            where: { is_domestic: 0, is_inquiry_only: 0 }
+        });
+        if (importUpdatedCount > 0) {
+            console.log(`[Import Cars Sync] 총 ${importUpdatedCount}개의 수입차량을 상담문의전용으로 변경했습니다.`);
+        }
+    } catch (err) {
+        console.error('[Startup Sync] 에러 발생:', err);
+    }
+});
 
 // 모델 관계 정의
 const Car = require('./models/Car');

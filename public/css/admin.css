@@ -153,6 +153,8 @@ body.admin-body {
 .badge-brand { background: #eef2f6; color: #555; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; }
 .badge-hot { background: #ff4d4d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; margin-left: 5px; }
 .badge-fast { background: var(--admin-primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; margin-left: 5px; }
+.badge-top10 { background: #ff9800; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; margin-left: 5px; }
+.badge-inquiry { background: #9c27b0; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; margin-left: 5px; }
 
 .status-active { color: #4caf50; font-weight: 800; }
 .status-inactive { color: #f44336; font-weight: 800; }
