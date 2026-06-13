@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 connectDB().then(async () => {
     try {
         // DB 테이블 자동 동기화 (새 컬럼 추가 반영)
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         
         const Car = require('./models/Car');
         const top10Cars = await Car.findAll({

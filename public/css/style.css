@@ -1389,12 +1389,14 @@ img { max-width: 100%; display: block; }
     .hero-swiper { height: auto; aspect-ratio: 1080 / 450; border-radius: 0; }
     
     .section-header { 
-        display: block; 
+        display: flex; 
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 25px; 
     }
     .section-title { 
         font-size: 22px; 
-        margin-bottom: 5px;
+        margin-bottom: 0;
     }
     .section-subtitle {
         font-size: 14px;
@@ -1403,12 +1405,14 @@ img { max-width: 100%; display: block; }
     }
     
     .view-more {
-        display: block;
-        margin-left: auto; /* 우측 정렬 */
-        margin-top: -30px; /* 타이틀과 같은 라인 느낌으로 위로 살짝 올림 */
+        display: inline-flex;
+        align-items: center;
+        margin-left: 0;
+        margin-top: 0;
         padding: 5px 12px;
         font-size: 11px;
         box-shadow: none;
+        flex-shrink: 0;
     }
     
     .view-more::after {
